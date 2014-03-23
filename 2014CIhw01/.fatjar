@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Thu Mar 20 09:19:33 CST 2014
+onejar.license.required=false
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=true
+jarname=D\:\\Morris\\CodeWork\\CIWorkspace\\2014CIhw01\\2014CIhw01_fat.jar
+manifest.mergeall=true
+manifest.mainclass=CarSimulator.Main
+manifest.file=<createnew>
+jarname.isextern=true
+onejar.expand=
+excludes=
+includes=
