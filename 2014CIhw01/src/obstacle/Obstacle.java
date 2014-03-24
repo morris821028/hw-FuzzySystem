@@ -1,43 +1,41 @@
-package CarSimulator;
+package obstacle;
 
-import java.awt.geom.*;
 import java.awt.*;
-import javax.swing.*;
-import obstacle.CarObstacle;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 
-public class CarSensor {
-	Car car;
+import CarSimulator.*;
 
-	public CarSensor(Car car) {
-		this.car = car;
+public class Obstacle {
+	protected Polygon poly;
+
+	public Obstacle() {
+
 	}
 
-	public synchronized double getDistToBounds(CarMap map, double x, double y) {
+	public Obstacle(Polygon poly) {
+		this.poly = poly;
+	}
+
+	public boolean inObstacle(double x, double y) {
+		return poly.contains(x, y);
+	}
+
+	public double getDistToBounds(double x, double y) {
 		double ret = 1e+5;
-		Polygon poly = map.road;
 		for (int i = 0, j = poly.npoints - 1; i < poly.npoints; j = i++) {
 			Line2D.Double l1 = new Line2D.Double(poly.xpoints[i],
 					poly.ypoints[i], poly.xpoints[j], poly.ypoints[j]);
 			ret = Math.min(ret, l1.ptSegDist(x, y));
 		}
-		for (int i = 0; i < map.obstacles.size(); i++) {
-			if (map.obstacles.get(i) instanceof CarObstacle) {
-				CarObstacle co = (CarObstacle) map.obstacles.get(i);
-				if (co.car == this.car)
-					continue;
-			}
-			ret = Math.min(ret, map.obstacles.get(i).getDistToBounds(x, y));
-		}
 		return ret;
 	}
 
-	public synchronized Point2D.Double getNearestPoint(CarMap map, double x, double y,
-			double theta) {
+	public Point2D.Double getNearestPoint(double x, double y, double theta) {
 		Point2D.Double ret = new Point2D.Double();
 		ret.x = x;
 		ret.y = y;
 		double mn = 1e+5;
-		Polygon poly = map.road;
 		for (int i = 0, j = poly.npoints - 1; i < poly.npoints; j = i++) {
 			Line2D.Double l1 = new Line2D.Double(poly.xpoints[i],
 					poly.ypoints[i], poly.xpoints[j], poly.ypoints[j]);
@@ -58,18 +56,24 @@ public class CarSensor {
 				mn = Math.min(mn, l);
 			}
 		}
-		for (int i = 0; i < map.obstacles.size(); i++) {
-			if (map.obstacles.get(i) instanceof CarObstacle) {
-				CarObstacle co = (CarObstacle) map.obstacles.get(i);
-				if (co.car == this.car)
-					continue;
-			}
-			Point2D.Double p = map.obstacles.get(i)
-					.getNearestPoint(x, y, theta);
-			mn = Math.min(mn, Math.hypot(p.x - x, p.y - y));
-		}
 		ret.x = ret.x + Math.cos(theta) * mn;
 		ret.y = ret.y + Math.sin(theta) * mn;
 		return ret;
+	}
+
+	public void paint(Graphics g, CarMap map) {
+		Polygon proad = new Polygon(poly.xpoints, poly.ypoints, poly.npoints);
+		for (int i = 0; i < proad.npoints; i++) {
+			Point p = map.transOnSwing(proad.xpoints[i], proad.ypoints[i]);
+			proad.xpoints[i] = p.x;
+			proad.ypoints[i] = p.y;
+		}
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_BUTT,
+				BasicStroke.JOIN_BEVEL, 10));
+		g2d.setColor(map.obstacleColor);
+		g2d.fillPolygon(proad);
+		g2d.setColor(map.borderColor);
+		g2d.drawPolygon(proad);
 	}
 }

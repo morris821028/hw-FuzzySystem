@@ -8,13 +8,16 @@ import calcModel.FuzzySystemII;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.Vector;
 
 public class Car {
 	private double x, y, phi, r;
 	private Engine engine;
 	public double theta;
 	public double d1, d2, d3;
+	public Vector<Point2D.Double> carPath = new Vector<Point2D.Double>();
 	public FuzzySystem fuzzySystem = new FuzzySystemII();
+	public CarSensor sensor;
 
 	Car(Engine engine) {
 		x = 0;
@@ -22,49 +25,52 @@ public class Car {
 		phi = Math.PI / 2;
 		theta = phi;
 		r = 3;
+		this.sensor = new CarSensor(this);
 		this.engine = engine;
 	}
 
-	public double getX() {
+	public synchronized double getX() {
 		return x;
 	}
 
-	public double getY() {
+	public synchronized double getY() {
 		return y;
 	}
 
-	public double getPhi() {
+	public synchronized double getPhi() {
 		return phi;
 	}
 
-	public double getRadius() {
+	public synchronized double getRadius() {
 		return r;
 	}
 
-	public void setX(double x) {
+	public synchronized void setX(double x) {
 		this.x = x;
 	}
 
-	public void setY(double y) {
+	public synchronized void setY(double y) {
 		this.y = y;
 	}
 
-	public void setPhi(double phi) {
+	public synchronized void setPhi(double phi) {
 		this.phi = phi;
 	}
 
-	public void run() {
+	public synchronized void run() {
 		theta = phi + fuzzySystem.program(d1, d2, d3) / 180.0 * Math.PI;
 		engine.runDeltaT(this, theta - phi);
 	}
 
-	public boolean hasCollision(Polygon poly) {
-		double bb = CarSensor.getDistToBounds(poly, this.getX(), this.getY());
+	public boolean hasCollision(CarMap cmap) {
+		double bb = sensor.getDistToBounds(cmap, this.getX(), this.getY());
 		return bb < this.getRadius();
 	}
 
 	public void paint(Graphics g, CarMap map) {
 		Graphics2D g2d = (Graphics2D) g;
+		g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_BUTT,
+				BasicStroke.JOIN_BEVEL, 10));
 		// paint car.
 		g2d.setColor(Color.RED);
 		int x, y, R;
@@ -91,28 +97,28 @@ public class Car {
 		g2d.setColor(Color.WHITE);
 		g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_BUTT,
 				BasicStroke.JOIN_BEVEL, 10, new float[] { 5, 5 }, 5));
-		Point2D.Double npt = CarSensor.getNearestPoint(map.road, this.getX(),
-				this.getY(), this.theta);
+		Point2D.Double npt;
+		npt = sensor.getNearestPoint(map, this.getX(), this.getY(), this.theta);
 		double v1, v2, v3;
 		p = map.transOnSwing(npt.x, npt.y);
 		g2d.drawLine(x, y, p.x, p.y);
 		v1 = Math.hypot(npt.x - this.getX(), npt.y - this.getY());
 
-		npt = CarSensor.getNearestPoint(map.road, this.getX(), this.getY(),
-				this.theta - Math.PI / 180.0 * 50);
+		npt = sensor.getNearestPoint(map, this.getX(), this.getY(), this.theta
+				- Math.PI / 180.0 * 50);
 		p = map.transOnSwing(npt.x, npt.y);
 		g2d.drawLine(x, y, p.x, p.y);
 		v2 = Math.hypot(npt.x - this.getX(), npt.y - this.getY());
 
-		npt = CarSensor.getNearestPoint(map.road, this.getX(), this.getY(),
-				this.theta + Math.PI / 180.0 * 50);
+		npt = sensor.getNearestPoint(map, this.getX(), this.getY(), this.theta
+				+ Math.PI / 180.0 * 50);
 		p = map.transOnSwing(npt.x, npt.y);
 		g2d.drawLine(x, y, p.x, p.y);
 		v3 = Math.hypot(npt.x - this.getX(), npt.y - this.getY());
 		this.d1 = v1;
 		this.d2 = v2;
 		this.d3 = v3;
-		if (this.hasCollision(map.road)) {
+		if (this.hasCollision(map)) {
 			map.eventFlag = 1;
 			String msg = String
 					.format("[Collision] x %.3f y %.3f phi %.3f d1 %.3f d2 %.3f d3 %.3f\n",
@@ -121,6 +127,6 @@ public class Car {
 			System.out.printf(msg);
 		}
 		CarControlPanel.getInstance().updateInfo(this, v1, v2, v3,
-				CarSensor.getDistToBounds(map.road, this.getX(), this.getY()));
+				sensor.getDistToBounds(map, this.getX(), this.getY()));
 	}
 }

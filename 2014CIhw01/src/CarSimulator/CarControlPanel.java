@@ -3,6 +3,9 @@ package CarSimulator;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
+import obstacle.CarObstacle;
+import calcModel.Engine;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.text.DecimalFormat;
@@ -29,6 +32,7 @@ public class CarControlPanel extends JPanel implements ActionListener {
 	public JComboBox mapChoose;
 	public JToggleButton startTest;
 	public JButton resetTest;
+	public JButton addCars;
 	public JSlider testRate;
 	public JTextArea consoleArea;
 	public CarMap carMap;
@@ -63,7 +67,8 @@ public class CarControlPanel extends JPanel implements ActionListener {
 
 		startTest = new JToggleButton("TEST");
 		resetTest = new JButton("RESET");
-		String[] mapStrings = { "map0", "map1", "map2", "map3" };
+		addCars = new JButton("Add");
+		String[] mapStrings = { "map0", "map1", "map2", "map3", "map4", "map5", "map6" };
 		mapChoose = new JComboBox(mapStrings);
 
 		Font displayFont = new Font("Fixedsys", Font.PLAIN, 16);
@@ -73,8 +78,8 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		d2Text.setEditable(false);
 		d3Text.setEditable(false);
 		bbText.setEditable(false);
-		paintAxis.setSelected(true);
-		paintGrid.setSelected(true);
+		paintAxis.setSelected(false);
+		paintGrid.setSelected(false);
 		autoTrack.setSelected(true);
 		d1Text.setFont(displayFont);
 		d2Text.setFont(displayFont);
@@ -84,8 +89,6 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		d2Text.setHorizontalAlignment(JTextField.RIGHT);
 		d3Text.setHorizontalAlignment(JTextField.RIGHT);
 		bbText.setHorizontalAlignment(JTextField.RIGHT);
-		startTest.setFont(new Font("Fixedsys", Font.BOLD, 24));
-		resetTest.setFont(new Font("Fixedsys", Font.BOLD, 24));
 		testRate.setOrientation(JSlider.HORIZONTAL);
 		// testRate.setMajorTickSpacing(10);
 		testRate.setPaintLabels(true);
@@ -102,63 +105,6 @@ public class CarControlPanel extends JPanel implements ActionListener {
 				String mapfileName = (String) cb.getSelectedItem();
 				System.out.println(mapfileName);
 				carMap.loadMapFile(mapfileName);
-			}
-		});
-		startTest.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent ev) {
-				if (ev.getStateChange() == ItemEvent.SELECTED) {
-					if (xPosField.getValue() instanceof Double)
-						carMap.car.setX((Double) xPosField.getValue());
-					else
-						carMap.car.setX((Long) xPosField.getValue());
-					if (yPosField.getValue() instanceof Double)
-						carMap.car.setY((Double) yPosField.getValue());
-					else
-						carMap.car.setY((Long) yPosField.getValue());
-					if (phiField.getValue() instanceof Double)
-						carMap.car.setPhi((Double) phiField.getValue());
-					else
-						carMap.car.setPhi((Long) phiField.getValue());
-					xPosField.setEditable(false);
-					yPosField.setEditable(false);
-					phiField.setEditable(false);
-					testTask = new TimerTask() {
-						public void run() {
-							carMap.runCar();
-							Thread.yield();
-						}
-					};
-					testTimer.scheduleAtFixedRate(testTask, 100,
-							1000 / testRate.getValue());
-					startTest.setText("STOP");
-				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
-					if (testTask != null)
-						testTask.cancel();
-					testTask = null;
-					startTest.setText("TEST");
-					xPosField.setEditable(true);
-					yPosField.setEditable(true);
-					phiField.setEditable(true);
-				}
-			}
-		});
-		resetTest.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				carMap.restart();
-				if (xPosField.getValue() instanceof Double)
-					carMap.car.setX((Double) xPosField.getValue());
-				else
-					carMap.car.setX((Long) xPosField.getValue());
-				if (yPosField.getValue() instanceof Double)
-					carMap.car.setY((Double) yPosField.getValue());
-				else
-					carMap.car.setY((Long) yPosField.getValue());
-				if (phiField.getValue() instanceof Double)
-					carMap.car.setPhi((Double) phiField.getValue());
-				else
-					carMap.car.setPhi((Long) phiField.getValue());
-				carMap.car.theta = carMap.car.getPhi();
-				carMap.repaint();
 			}
 		});
 		this.setLayout(new GridLayout(3, 1));
@@ -196,19 +142,22 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		submitPanel = new JPanel();
 		submitPanel.setLayout(new BorderLayout());
 		submitPanel.setBorder(new TitledBorder(""));
-		submitPanel.add(createEntryFields(), BorderLayout.CENTER);
+		submitPanel.add(createEntryFields(), BorderLayout.NORTH);
+		submitPanel.add(testRate, BorderLayout.CENTER);
 		submitPanel.add(createButtons(), BorderLayout.SOUTH);
-		submitPanel.add(testRate, BorderLayout.NORTH);
 		this.add(submitPanel);
 
 		consolePanel = new JPanel();
 		consolePanel.setLayout(new BorderLayout());
 		consolePanel.add(new JLabel("Console ouput:"), BorderLayout.NORTH);
 		consolePanel.add(consoleArea, BorderLayout.CENTER);
+		consoleArea.setDocument(new JTextFieldLimit(1024));
 		// this.add(consolePanel);
 	}
 
 	public void updateInfo(Car car, double v1, double v2, double v3, double bb) {
+		if(carMap.cars.size() > 1)
+			return;
 		xSpinner.setValue(car.getX());
 		ySpinner.setValue(car.getY());
 		d1Text.setText(String.format("%.3f", v1));
@@ -251,21 +200,23 @@ public class CarControlPanel extends JPanel implements ActionListener {
 
 		// Associate label/field pairs, add everything,
 		// and lay it out.
-		
+
 		ActionListener action = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Car car = carMap.cars.get(0);
 				if (xPosField.getValue() instanceof Double)
-					carMap.car.setX((Double) xPosField.getValue());
+					car.setX((Double) xPosField.getValue());
 				else
-					carMap.car.setX((Long) xPosField.getValue());
+					car.setX((Long) xPosField.getValue());
 				if (yPosField.getValue() instanceof Double)
-					carMap.car.setY((Double) yPosField.getValue());
+					car.setY((Double) yPosField.getValue());
 				else
-					carMap.car.setY((Long) yPosField.getValue());
+					car.setY((Long) yPosField.getValue());
 				if (phiField.getValue() instanceof Double)
-					carMap.car.setPhi((Double) phiField.getValue());
+					car.setPhi((Double) phiField.getValue());
 				else
-					carMap.car.setPhi((Long) phiField.getValue());
+					car.setPhi((Long) phiField.getValue());
+				car.theta = car.getPhi();
 				carMap.repaint();
 			}
 		};
@@ -274,7 +225,7 @@ public class CarControlPanel extends JPanel implements ActionListener {
 			labels[i].setLabelFor(fields[i]);
 			panel.add(labels[i]);
 			panel.add(fields[i]);
-			if(fields[i] instanceof JFormattedTextField) {
+			if (fields[i] instanceof JFormattedTextField) {
 				JFormattedTextField f = (JFormattedTextField) fields[i];
 				f.addActionListener(action);
 			}
@@ -288,11 +239,67 @@ public class CarControlPanel extends JPanel implements ActionListener {
 
 	protected JComponent createButtons() {
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-
+		startTest.setFont(new Font("Fixedsys", Font.BOLD, 20));
+		resetTest.setFont(new Font("Fixedsys", Font.BOLD, 20));
+		addCars.setFont(new Font("Fixedsys", Font.BOLD, 20));
+		startTest.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent ev) {
+				if (ev.getStateChange() == ItemEvent.SELECTED) {
+					xPosField.setEditable(false);
+					yPosField.setEditable(false);
+					phiField.setEditable(false);
+					testTask = new TimerTask() {
+						public void run() {
+							carMap.runCar();
+							Thread.yield();
+						}
+					};
+					testTimer.scheduleAtFixedRate(testTask, 100,
+							1000 / testRate.getValue());
+					startTest.setText("STOP");
+				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
+					if (testTask != null)
+						testTask.cancel();
+					testTask = null;
+					startTest.setText("TEST");
+					xPosField.setEditable(true);
+					yPosField.setEditable(true);
+					phiField.setEditable(true);
+				}
+			}
+		});
+		resetTest.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Car car = carMap.cars.get(0);
+				carMap.cars.removeAllElements();
+				carMap.cars.add(car);
+				carMap.restart();
+				if (xPosField.getValue() instanceof Double)
+					car.setX((Double) xPosField.getValue());
+				else
+					car.setX((Long) xPosField.getValue());
+				if (yPosField.getValue() instanceof Double)
+					car.setY((Double) yPosField.getValue());
+				else
+					car.setY((Long) yPosField.getValue());
+				if (phiField.getValue() instanceof Double)
+					car.setPhi((Double) phiField.getValue());
+				else
+					car.setPhi((Long) phiField.getValue());
+				car.theta = car.getPhi();
+				carMap.repaint();
+			}
+		});
+		addCars.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Car car = new Car(new Engine());
+				carMap.cars.add(car);
+				carMap.obstacles.add(new CarObstacle(car));
+			}
+		});
 		panel.add(startTest);
-
 		panel.add(resetTest);
-
+		panel.add(addCars);
 		// Match the SpringLayout's gap, subtracting 5 to make
 		// up for the default gap FlowLayout provides.
 		int GAP = 10;

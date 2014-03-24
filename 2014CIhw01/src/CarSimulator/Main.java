@@ -33,7 +33,7 @@ public class Main extends JFrame {
 	}
 
 	public Main() {
-		this.setTitle("Car Simulator 2014 HW - 01");
+		this.setTitle("It's just a hw. Why ?");
 		this.setSize(800, 600);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(false);
