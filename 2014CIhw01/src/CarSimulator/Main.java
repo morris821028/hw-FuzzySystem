@@ -43,7 +43,7 @@ public class Main extends JFrame {
 		} catch (Exception e) {
 		    // If Nimbus is not available, you can set the GUI to another look and feel.
 		}
-		this.setTitle("It's just a hw. Why ?");
+		this.setTitle("100502205 - HW1");
 		this.setSize(1024, 720);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(false);
