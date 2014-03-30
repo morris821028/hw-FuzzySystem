@@ -34,7 +34,7 @@ public class ActivityPanel extends JPanel {
 				Thread.yield();
 			}
 		};
-		testTimer.scheduleAtFixedRate(testTask, 1000, 150);
+		testTimer.scheduleAtFixedRate(testTask, 3000, 250);
 	}
 
 	public void addTheta(double theta) {
