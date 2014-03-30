@@ -59,6 +59,7 @@ public class Car {
 
 	public synchronized void run() {
 		theta = phi + fuzzySystem.program(d1, d2, d3) / 180.0 * Math.PI;
+		CarControlPanel.getInstance().recordDeltaTheta(theta - phi);
 		engine.runDeltaT(this, theta - phi);
 	}
 

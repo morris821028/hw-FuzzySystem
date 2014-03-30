@@ -1,6 +1,7 @@
 package calcModel;
 
 import java.awt.Graphics;
+import java.awt.geom.Point2D;
 
 public class FuzzySystem {
 	public static final int SMALL = 0;
@@ -22,30 +23,37 @@ public class FuzzySystem {
 	 * @return delta rotate phi.
 	 */
 	public double program(double d1, double d2, double d3) {
-		double c1, r1, c2, r2, c3, r3, c4, r4, c5, r5, c6, r6;
-		c1 = mf_d1(d1, LARGE);
-		r1 = 40;
-		c2 = mf_d2(d2, SMALL);
-		r2 = 40 * (d3 + 4) / (d3 + d2 + 4);
-		c3 = mf_d3(d3, SMALL);
-		r3 = -40 * (d2 + 4) / (d2 + d3 + 4);
-		c4 = mf_d2(d2, LARGE);
-		r4 = -35 * (d2 + 4) / (d1 + d2 + 4);
-		c5 = mf_d3(d3, LARGE);
-		r5 = 35 * (d3 + 4) / (d1 + d3 + 4);
-		c6 = mf_d1(d1, SMALL);
-		r6 = 0;
+		double[] funcVal = new double[7];
+		double[] a = new double[7]; // alpha
+		
+		a[0] = mf_d3(d3, LARGE);
+		a[1] = mf_d2(d2, LARGE);
+		a[2] = mf_d2(d2, MEDIUM);
+		a[3] = mf_d3(d3, MEDIUM);
+		a[4] = mf_d1(d1, LARGE) * mf_d2(d2, SMALL);
+		a[5] = mf_d1(d1, LARGE) * mf_d3(d3, SMALL);
+		a[6] = mf_d1(d1, SMALL);
+		
+		funcVal[0] = 55;
+		funcVal[1] = -55;
+		funcVal[2] = -40;
+		funcVal[3] = 40;
+		funcVal[4] = 30;
+		funcVal[5] = -30;
+		funcVal[6] = 60;
+		return Math.max(Math.min(40, this.functionalWeightedAverage(a, funcVal)), -40);
+	}
 
-		double A = (c1 * r1 + c2 * r2 + c3 * r3 + c4 * r4 + c5 * r5 + c6 * r6);
-		double B = (c1 + c2 + c3 + c4 + c5 + c6);
-		double rotate = A / B;
-		System.out.printf("%f %f %f\n", d1, d2, d3);
-		System.out.printf("%f %f %f %f %f\n", c1, c2, c3, c4, c5);
-		System.out.printf("%f %f\n", A, B);
-		if (Math.abs(B) < 1e-3)
+	public double functionalWeightedAverage(double a[], double funcVal[]) {
+		assert (a.length == funcVal.length);
+		double A = 0, B = 0;
+		for(int i = 0; i < a.length; i++) {
+			A += a[i] * funcVal[i];
+			B += a[i];
+		}
+		if(Math.abs(B) < 1e-6)
 			return 0;
-		System.out.printf("R = %f\n", rotate);
-		return rotate;
+		return A / B;
 	}
 
 	/**
@@ -54,29 +62,18 @@ public class FuzzySystem {
 	 * @param d1
 	 * @return
 	 */
-	public static double mf_d1(double d1, int kind_size) {
+	public double mf_d1(double d1, int kind_size) {
 		switch (kind_size) {
 		case SMALL:
-			if (d1 < 4)
+			if (d1 < 3)
 				return 1;
-			if (d1 < 4.5)
-				return -2 * d1 + 9;
+			if (d1 < 10)
+				return -d1 / 7.0 + 10.0 / 7.0;
 			return 0;
 		case MEDIUM:
-			if (d1 < 7)
-				return 0;
-			if (d1 < 13)
-				return d1 / 6 - 7 / 6.0;
-			if (d1 < 20)
-				return 1;
-			if (d1 < 21)
-				return -d1 + 21;
-			return 0;
 		case LARGE:
-			if (d1 < 4)
+			if (d1 < 30)
 				return 0;
-			if (d1 < 10)
-				return d1 / 6.0 - 4 / 6.0;
 			return 1;
 		}
 		return 0;
@@ -88,29 +85,27 @@ public class FuzzySystem {
 	 * @param d2
 	 * @return
 	 */
-	public static double mf_d2(double d1, int kind_size) {
+	public double mf_d2(double d1, int kind_size) {
 		switch (kind_size) {
 		case SMALL:
 			if (d1 < 4)
 				return 1;
-			if (d1 < 4.5)
-				return -2 * d1 + 9;
+			if (d1 < 5)
+				return -d1 + 5;
 			return 0;
 		case MEDIUM:
-			if (d1 < 7)
-				return 0;
-			if (d1 < 13)
-				return d1 / 6 - 7 / 6.0;
-			if (d1 < 20)
-				return 1;
-			if (d1 < 21)
-				return -d1 + 21;
-			return 0;
-		case LARGE:
 			if (d1 < 4)
 				return 0;
 			if (d1 < 10)
-				return d1 / 6.0 - 4 / 6.0;
+				return d1 / 6 - 4 / 6.0;
+			if (d1 < 16)
+				return -d1 / 6 + 16 / 6.0;
+			return 0;
+		case LARGE:
+			if (d1 < 8)
+				return 0;
+			if (d1 < 16)
+				return d1 / 8 - 1;
 			return 1;
 		}
 		return 0;
@@ -122,29 +117,27 @@ public class FuzzySystem {
 	 * @param d1
 	 * @return
 	 */
-	public static double mf_d3(double d1, int kind_size) {
+	public double mf_d3(double d1, int kind_size) {
 		switch (kind_size) {
 		case SMALL:
 			if (d1 < 4)
 				return 1;
-			if (d1 < 4.5)
-				return -2 * d1 + 9;
+			if (d1 < 5)
+				return -d1 + 5;
 			return 0;
 		case MEDIUM:
-			if (d1 < 7)
-				return 0;
-			if (d1 < 13)
-				return d1 / 6 - 7 / 6.0;
-			if (d1 < 20)
-				return 1;
-			if (d1 < 21)
-				return -d1 + 21;
-			return 0;
-		case LARGE:
 			if (d1 < 4)
 				return 0;
 			if (d1 < 10)
-				return d1 / 6.0 - 4 / 6.0;
+				return d1 / 6 - 4 / 6.0;
+			if (d1 < 16)
+				return -d1 / 6 + 16 / 6.0;
+			return 0;
+		case LARGE:
+			if (d1 < 10)
+				return 0;
+			if (d1 < 16)
+				return d1 / 6 - 10 / 6.0;
 			return 1;
 		}
 		return 0;

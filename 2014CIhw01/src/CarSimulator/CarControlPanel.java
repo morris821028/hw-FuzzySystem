@@ -2,9 +2,12 @@ package CarSimulator;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import obstacle.CarObstacle;
 import calcModel.Engine;
+import calcModel.FuzzySystemFactory;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -30,9 +33,11 @@ public class CarControlPanel extends JPanel implements ActionListener {
 	public JCheckBox pathDraw;
 	public JCheckBox pathRetain;
 	public JComboBox mapChoose;
+	public JComboBox fuzzyChoose;
 	public JToggleButton startTest;
 	public JButton resetTest;
 	public JButton addCars;
+	public JSlider phiSize;
 	public JSlider testRate;
 	public JTextArea consoleArea;
 	public CarMap carMap;
@@ -44,8 +49,138 @@ public class CarControlPanel extends JPanel implements ActionListener {
 	public JPanel settingPanel;
 	public JPanel submitPanel;
 	public JPanel consolePanel;
+	public ActivityPanel graphicPanel;
 
 	private CarControlPanel() {
+		consoleArea = new JTextArea();
+
+		consoleArea.setColumns(20);
+		consoleArea.setRows(10);
+
+		this.setLayout(new GridLayout(2, 2));
+
+		dataPanel = this.createDataPanel();
+		this.add(dataPanel);
+
+		settingPanel = this.createSettingPanel();
+		this.add(settingPanel);
+
+		submitPanel = this.createSubmitPanel();
+		this.add(submitPanel);
+
+		consolePanel = new JPanel();
+		consolePanel.setLayout(new BorderLayout());
+		consolePanel.add(new JLabel("Console ouput:"), BorderLayout.NORTH);
+		consolePanel.add(consoleArea, BorderLayout.CENTER);
+		consoleArea.setDocument(new JTextFieldLimit(1024));
+
+		graphicPanel = new ActivityPanel();
+		this.add(graphicPanel);
+	}
+
+	public void recordDeltaTheta(double theta) {
+		this.graphicPanel.addTheta(theta);
+	}
+
+	public void updateInfo(Car car, double v1, double v2, double v3, double bb) {
+		if (carMap.cars.size() > 1)
+			return;
+		xSpinner.setValue(car.getX());
+		ySpinner.setValue(car.getY());
+		d1Text.setText(String.format("%.3f", v1));
+		d2Text.setText(String.format("%.3f", v2));
+		d3Text.setText(String.format("%.3f", v3));
+		bbText.setText(String.format("%.3f", bb));
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		carMap.repaint();
+	}
+
+	protected JPanel createSubmitPanel() {
+		testRate = new JSlider(0, 100, 33);
+		phiSize = new JSlider(0, 360, 90);
+
+		startTest = new JToggleButton("TEST");
+		resetTest = new JButton("RESET");
+		addCars = new JButton("Add");
+
+		testRate.setOrientation(JSlider.HORIZONTAL);
+		testRate.setPaintLabels(true);
+		testRate.setPaintTicks(true);
+		testRate.setMajorTickSpacing(10);
+		testRate.setToolTipText("Test Rate");
+		Hashtable labelTable = new Hashtable();
+		labelTable.put(new Integer(0), new JLabel("Stop"));
+		labelTable.put(new Integer(33), new JLabel("Normal"));
+		labelTable.put(new Integer(100), new JLabel("Fast"));
+		testRate.setLabelTable(labelTable);
+
+		phiSize.setOrientation(JSlider.HORIZONTAL);
+		phiSize.setPaintLabels(true);
+		phiSize.setPaintTicks(true);
+		phiSize.setMajorTickSpacing(10);
+		phiSize.setToolTipText("Car Rotate");
+		labelTable = new Hashtable();
+		labelTable.put(new Integer(0), new JLabel("0"));
+		labelTable.put(new Integer(180), new JLabel("£k"));
+		labelTable.put(new Integer(360), new JLabel("2£k"));
+		phiSize.setLabelTable(labelTable);
+
+		phiSize.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				if (!source.getValueIsAdjusting()) {
+					int val = (int) source.getValue();
+					carMap.cars.get(0).setPhi(val / 180.0 * Math.PI);
+					carMap.cars.get(0).theta = val / 180.0 * Math.PI;
+					phiField.setText(val / 180.0 * Math.PI + "");
+					carMap.repaint();
+				}
+			}
+		});
+		startTest.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent ev) {
+				if (ev.getStateChange() == ItemEvent.SELECTED) {
+					xPosField.setEditable(false);
+					yPosField.setEditable(false);
+					phiField.setEditable(false);
+					testTask = new TimerTask() {
+						public void run() {
+							carMap.runCar();
+							Thread.yield();
+						}
+					};
+					testTimer.scheduleAtFixedRate(testTask, 100,
+							1000 / testRate.getValue());
+					startTest.setText("STOP");
+				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
+					if (testTask != null)
+						testTask.cancel();
+					testTask = null;
+					startTest.setText("TEST");
+					xPosField.setEditable(true);
+					yPosField.setEditable(true);
+					phiField.setEditable(true);
+				}
+			}
+		});
+
+		JPanel submitPanel = new JPanel();
+		submitPanel.setLayout(new BorderLayout());
+		submitPanel.setBorder(new TitledBorder("Submit"));
+		submitPanel.add(createEntryFields(), BorderLayout.NORTH);
+		JPanel p = new JPanel();
+		p.setLayout(new GridLayout(2, 1));
+		p.add(phiSize);
+		p.add(testRate);
+		submitPanel.add(p, BorderLayout.CENTER);
+		submitPanel.add(createButtons(), BorderLayout.SOUTH);
+		return submitPanel;
+	}
+
+	protected JPanel createDataPanel() {
 		SpinnerModel xmodel = new SpinnerNumberModel(0.00, -100, 100, 0.01);
 		SpinnerModel ymodel = new SpinnerNumberModel(0.00, -100, 100, 0.01);
 		xSpinner = new JSpinner(xmodel);
@@ -55,21 +190,6 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		d2Text = new JTextField();
 		d3Text = new JTextField();
 		bbText = new JTextField();
-		consoleArea = new JTextArea();
-
-		paintAxis = new JCheckBox("Axis");
-		paintGrid = new JCheckBox("Grid");
-		autoTrack = new JCheckBox("Auto Track");
-		errIgnore = new JCheckBox("Error Ignore");
-		pathDraw = new JCheckBox("Path Draw");
-		pathRetain = new JCheckBox("Path Retain");
-		testRate = new JSlider(0, 100, 33);
-
-		startTest = new JToggleButton("TEST");
-		resetTest = new JButton("RESET");
-		addCars = new JButton("Add");
-		String[] mapStrings = { "map0", "map1", "map2", "map3", "map4", "map5", "map6" };
-		mapChoose = new JComboBox(mapStrings);
 
 		Font displayFont = new Font("Fixedsys", Font.PLAIN, 16);
 		xSpinner.setEnabled(false);
@@ -78,9 +198,6 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		d2Text.setEditable(false);
 		d3Text.setEditable(false);
 		bbText.setEditable(false);
-		paintAxis.setSelected(false);
-		paintGrid.setSelected(false);
-		autoTrack.setSelected(true);
 		d1Text.setFont(displayFont);
 		d2Text.setFont(displayFont);
 		d3Text.setFont(displayFont);
@@ -89,27 +206,8 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		d2Text.setHorizontalAlignment(JTextField.RIGHT);
 		d3Text.setHorizontalAlignment(JTextField.RIGHT);
 		bbText.setHorizontalAlignment(JTextField.RIGHT);
-		testRate.setOrientation(JSlider.HORIZONTAL);
-		// testRate.setMajorTickSpacing(10);
-		testRate.setPaintLabels(true);
-		testRate.setPaintTicks(true);
-		consoleArea.setColumns(20);
-		consoleArea.setRows(10);
 
-		paintAxis.addActionListener(this);
-		paintGrid.addActionListener(this);
-		autoTrack.addActionListener(this);
-		mapChoose.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JComboBox cb = (JComboBox) e.getSource();
-				String mapfileName = (String) cb.getSelectedItem();
-				System.out.println(mapfileName);
-				carMap.loadMapFile(mapfileName);
-			}
-		});
-		this.setLayout(new GridLayout(3, 1));
-
-		dataPanel = new JPanel();
+		JPanel dataPanel = new JPanel();
 		dataPanel.setBorder(new TitledBorder("Information"));
 		dataPanel.setLayout(new GridLayout(6, 2));
 		dataPanel.add(new JLabel("X:"));
@@ -124,51 +222,61 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		dataPanel.add(d3Text);
 		dataPanel.add(new JLabel("Collision:"));
 		dataPanel.add(bbText);
-		this.add(dataPanel);
+		return dataPanel;
+	}
 
-		settingPanel = new JPanel();
+	protected JPanel createSettingPanel() {
+		paintAxis = new JCheckBox("Axis");
+		paintGrid = new JCheckBox("Grid");
+		autoTrack = new JCheckBox("Auto Track");
+		errIgnore = new JCheckBox("Error Ignore");
+		pathDraw = new JCheckBox("Path Draw");
+		pathRetain = new JCheckBox("Path Retain");
+		String[] mapStrings = { "map0", "map1", "map2", "map3", "map4", "map5",
+				"map6" };
+		mapChoose = new JComboBox(mapStrings);
+		String[] fuzzyStrings = { "CenterOfGravity", "Functional", "MeanOfMax",
+				"(Modified)Mean" };
+		fuzzyChoose = new JComboBox(fuzzyStrings);
+
+		paintAxis.setSelected(false);
+		paintGrid.setSelected(false);
+		autoTrack.setSelected(true);
+
+		paintAxis.addActionListener(this);
+		paintGrid.addActionListener(this);
+		autoTrack.addActionListener(this);
+		mapChoose.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				String mapfileName = (String) cb.getSelectedItem();
+				System.out.println(mapfileName);
+				carMap.loadMapFile(mapfileName);
+			}
+		});
+		fuzzyChoose.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JComboBox cb = (JComboBox) e.getSource();
+				String fuzzyName = (String) cb.getSelectedItem();
+				carMap.cars.get(0).fuzzySystem = FuzzySystemFactory
+						.createFuzzySystem(fuzzyName);
+			}
+		});
+
+		JPanel settingPanel = new JPanel();
 		settingPanel.setBorder(new TitledBorder("Setting"));
-		settingPanel.setLayout(new GridLayout(4, 2));
+		settingPanel.setLayout(new GridLayout(5, 2));
 		settingPanel.add(paintAxis);
 		settingPanel.add(paintGrid);
 		settingPanel.add(autoTrack);
 		settingPanel.add(errIgnore);
 		settingPanel.add(pathDraw);
 		settingPanel.add(pathRetain);
-		settingPanel.add(new JLabel("Map choose:"));
+		settingPanel.add(new JLabel("Map: "));
 		settingPanel.add(mapChoose);
-		this.add(settingPanel);
-
-		submitPanel = new JPanel();
-		submitPanel.setLayout(new BorderLayout());
-		submitPanel.setBorder(new TitledBorder(""));
-		submitPanel.add(createEntryFields(), BorderLayout.NORTH);
-		submitPanel.add(testRate, BorderLayout.CENTER);
-		submitPanel.add(createButtons(), BorderLayout.SOUTH);
-		this.add(submitPanel);
-
-		consolePanel = new JPanel();
-		consolePanel.setLayout(new BorderLayout());
-		consolePanel.add(new JLabel("Console ouput:"), BorderLayout.NORTH);
-		consolePanel.add(consoleArea, BorderLayout.CENTER);
-		consoleArea.setDocument(new JTextFieldLimit(1024));
-		// this.add(consolePanel);
-	}
-
-	public void updateInfo(Car car, double v1, double v2, double v3, double bb) {
-		if(carMap.cars.size() > 1)
-			return;
-		xSpinner.setValue(car.getX());
-		ySpinner.setValue(car.getY());
-		d1Text.setText(String.format("%.3f", v1));
-		d2Text.setText(String.format("%.3f", v2));
-		d3Text.setText(String.format("%.3f", v3));
-		bbText.setText(String.format("%.3f", bb));
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		carMap.repaint();
+		settingPanel.add(new JLabel("Fuzzy System:"));
+		settingPanel.add(fuzzyChoose);
+		return settingPanel;
 	}
 
 	JFormattedTextField xPosField, yPosField, phiField;
@@ -242,32 +350,7 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		startTest.setFont(new Font("Fixedsys", Font.BOLD, 20));
 		resetTest.setFont(new Font("Fixedsys", Font.BOLD, 20));
 		addCars.setFont(new Font("Fixedsys", Font.BOLD, 20));
-		startTest.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent ev) {
-				if (ev.getStateChange() == ItemEvent.SELECTED) {
-					xPosField.setEditable(false);
-					yPosField.setEditable(false);
-					phiField.setEditable(false);
-					testTask = new TimerTask() {
-						public void run() {
-							carMap.runCar();
-							Thread.yield();
-						}
-					};
-					testTimer.scheduleAtFixedRate(testTask, 100,
-							1000 / testRate.getValue());
-					startTest.setText("STOP");
-				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
-					if (testTask != null)
-						testTask.cancel();
-					testTask = null;
-					startTest.setText("TEST");
-					xPosField.setEditable(true);
-					yPosField.setEditable(true);
-					phiField.setEditable(true);
-				}
-			}
-		});
+
 		resetTest.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Car car = carMap.cars.get(0);
