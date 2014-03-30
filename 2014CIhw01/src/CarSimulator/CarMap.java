@@ -6,6 +6,7 @@ import obstacle.Obstacle;
 import java.awt.*;
 import java.util.*;
 import java.awt.event.*;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.io.File;
@@ -26,6 +27,9 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 	public Color obstacleColor;
 	public int xLarge = 7;
 	public Vector<Car> cars = new Vector<Car>();
+
+	public Line2D.Double finalLine;
+	public int finalLinePos;
 	// public Car car;
 
 	// mouse input.
@@ -50,6 +54,7 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 		this.addMouseMotionListener(this);
 		this.addMouseWheelListener(this);
 		loadImage();
+		loadMapFile("map0");
 		CarControlPanel.getInstance().carMap = this;
 	}
 
@@ -69,6 +74,17 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 				x = cin.nextDouble();
 				y = cin.nextDouble();
 				r.addPoint((int) x, (int) y);
+			}
+			int hasFinalLine = cin.nextInt();
+			if (hasFinalLine > 0) {
+				double sx, sy, ex, ey;
+				sx = cin.nextDouble();
+				sy = cin.nextDouble();
+				ex = cin.nextDouble();
+				ey = cin.nextDouble();
+				finalLine = new Line2D.Double(sx, sy, ex, ey);
+			} else {
+				finalLine = null;
 			}
 			this.road = r;
 			while (cin.hasNext()) {
@@ -166,13 +182,6 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 	public boolean dispatchKeyEvent(KeyEvent e) {
 		if (e.getID() == KeyEvent.KEY_RELEASED)
 			return false;
-		/*
-		 * if (e.getKeyCode() == KeyEvent.VK_RIGHT) { if (Math.abs(car.theta -
-		 * Math.PI / 180.0 * 3 - car.getPhi()) < Math.PI / 180.0 * 40) car.theta
-		 * -= Math.PI / 180.0 * 3; } if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-		 * if (Math.abs(car.theta + Math.PI / 180.0 * 3 - car.getPhi()) <
-		 * Math.PI / 180.0 * 40) car.theta += Math.PI / 180.0 * 3; }
-		 */
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			restart();
 		}
@@ -200,8 +209,6 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 		if (eventFlag > 0) {
 			if (CarControlPanel.getInstance().errIgnore.isSelected())
 				eventFlag = 0;
-			else
-				restart();
 		}
 		autoTrackCarAdjust();
 		Graphics2D g2d = (Graphics2D) g;
@@ -212,14 +219,45 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 			car.paint(g2d, this);
 		}
 		if (eventFlag == 1) {
-			ImageIcon image = (ImageIcon) imgTable.get("FAIL");
-			int Ox = this.getWidth() / 2 - image.getIconWidth() / 2, Oy = this
-					.getHeight() / 2 - image.getIconHeight() / 2;
-			g2d.drawImage(image.getImage(), Ox, Oy, this);
+			// ImageIcon image = (ImageIcon) imgTable.get("FAIL");
+			// int Ox = this.getWidth() / 2 - image.getIconWidth() / 2, Oy =
+			// this
+			// .getHeight() / 2 - image.getIconHeight() / 2;
+			int Ox = this.getWidth() / 2 - 250 / 2;
+			int Oy = this.getHeight() / 2;
+			Font of = g2d.getFont();
+			g2d.setColor(Color.RED);
+			g2d.setFont(new Font("Comic Sans MS", Font.BOLD, 108));
+			g2d.drawString("FAIL", Ox, Oy);
+			g2d.setFont(of);
+			// g2d.drawImage(image.getImage(), Ox, Oy, this);
+		} else if (eventFlag == 2) {
+			int Ox = this.getWidth() / 2 - 400 / 2;
+			int Oy = this.getHeight() / 2;
+			Font of = g2d.getFont();
+			g2d.setColor(Color.GREEN);
+			g2d.setFont(new Font("Comic Sans MS", Font.BOLD, 96));
+			g2d.drawString("SUCCESS", Ox, Oy);
+			g2d.setFont(of);
 		}
 		paintAxisCoordinate(g);
 		paintGridCoordinate(g);
 		paintCarRunPath(g);
+
+		if (finalLine != null) {
+			Point p1 = transOnSwing(finalLine.x1, finalLine.y1);
+
+			Point p2 = transOnSwing(finalLine.x2, finalLine.y2);
+			g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_BUTT,
+					BasicStroke.JOIN_BEVEL, 20, new float[] { 5, 5 }, 5));
+			g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+			double a, b, c;
+			a = finalLine.y1 - finalLine.y2;
+			b = finalLine.x2 - finalLine.x1;
+			c = -(a * finalLine.x1 + b * finalLine.y1);
+			if (a * cars.get(0).getX() + b * cars.get(0).getY() + c > 0)
+				eventFlag = 2;
+		}
 
 		for (int i = 0; i < cars.size() && i < 1; i++) {
 			Car car = cars.get(i);

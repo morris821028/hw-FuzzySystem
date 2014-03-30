@@ -109,7 +109,7 @@ public class FuzzySystemII extends FuzzySystem {
 	 * @param d1
 	 * @return
 	 */
-	public static double mf_d1(double d1, int kind_size) {
+	public double mf_d1(double d1, int kind_size) {
 		switch (kind_size) {
 		case SMALL:
 			if (d1 < 3)
@@ -132,7 +132,7 @@ public class FuzzySystemII extends FuzzySystem {
 	 * @param d2
 	 * @return
 	 */
-	public static double mf_d2(double d1, int kind_size) {
+	public double mf_d2(double d1, int kind_size) {
 		switch (kind_size) {
 		case SMALL:
 			if (d1 < 4)
@@ -164,7 +164,7 @@ public class FuzzySystemII extends FuzzySystem {
 	 * @param d1
 	 * @return
 	 */
-	public static double mf_d3(double d1, int kind_size) {
+	public double mf_d3(double d1, int kind_size) {
 		switch (kind_size) {
 		case SMALL:
 			if (d1 < 4)
