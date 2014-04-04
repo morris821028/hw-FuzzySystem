@@ -56,6 +56,7 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 		loadImage();
 		loadMapFile("map0");
 		CarControlPanel.getInstance().carMap = this;
+		setPreferredSize(new Dimension(500, 500));
 	}
 
 	public void loadMapFile(String file) {

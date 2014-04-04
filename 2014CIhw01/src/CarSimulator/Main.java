@@ -46,9 +46,7 @@ public class Main extends JFrame {
 		this.setTitle("100502205 - HW1");
 		this.setSize(1024, 720);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setResizable(false);
 		this.loadImage();
-		this.setLayout(new BorderLayout());
 
 		MSlideBar slideBar = new MSlideBar();
 		Car car = new Car(new Engine());
@@ -79,20 +77,14 @@ public class Main extends JFrame {
 		OverlayLayout ov = new OverlayLayout(carmap);
 		carmap.setLayout(ov);
 		carmap.add(slideBar);
-
 		this.add(carmap, BorderLayout.CENTER);
 		this.add(ctrlPanel, BorderLayout.EAST);
+		
+		this.setLocationRelativeTo(null);
 	}
 
 	public static void main(String[] args) {
 		Main f = new Main();
 		f.setVisible(true);
-		/*
-		 * JFrame.setDefaultLookAndFeelDecorated(true);
-		 * JDialog.setDefaultLookAndFeelDecorated(true);
-		 * SwingUtilities.invokeLater(new Runnable() { public void run() {
-		 * SubstanceLookAndFeel.setSkin(new BusinessBlueSteelSkin());
-		 * UIManager.put("TabbedPane.contentOpaque", Boolean.TRUE); } });
-		 */
 	}
 }
