@@ -7,11 +7,13 @@ import javax.swing.event.ChangeListener;
 
 import obstacle.CarObstacle;
 import calcModel.Engine;
-import calcModel.FuzzySystemFactory;
+import calcModel.fuzzySystem.FuzzySystemFactory;
+import calcModel.fuzzySystem.FuzzySystemII;
+import calcModel.geneAlgorithm.Gene;
+import calcModel.geneAlgorithm.GeneControl;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.text.DecimalFormat;
 import java.util.*;
 
 public class CarControlPanel extends JPanel implements ActionListener {
@@ -35,8 +37,10 @@ public class CarControlPanel extends JPanel implements ActionListener {
 	public JComboBox mapChoose;
 	public JComboBox fuzzyChoose;
 	public JToggleButton startTest;
+	public JToggleButton GASimbutton;
 	public JButton resetTest;
 	public JButton addCars;
+	public JButton GAbutton;
 	public JSlider phiSize;
 	public JSlider testRate;
 	public JTextArea consoleArea;
@@ -76,10 +80,14 @@ public class CarControlPanel extends JPanel implements ActionListener {
 
 		graphicPanel = new ActivityPanel();
 		this.add(graphicPanel);
+
+		this.setMaximumSize(new Dimension(200, 300));
 	}
 
-	public void recordDeltaTheta(double theta) {
-		this.graphicPanel.addTheta(theta);
+	public void recordDeltaTheta(double d1, double d2, double d3, double theta) {
+		// System.out.printf("%f %f %f %f\n", d1, d2, d3, theta / Math.PI *
+		// 180);
+		this.graphicPanel.recordData(d1, d2, d3, theta / Math.PI * 180);
 	}
 
 	public void updateInfo(Car car, double v1, double v2, double v3, double bb) {
@@ -101,10 +109,6 @@ public class CarControlPanel extends JPanel implements ActionListener {
 	protected JPanel createSubmitPanel() {
 		testRate = new JSlider(0, 100, 33);
 		phiSize = new JSlider(0, 360, 90);
-
-		startTest = new JToggleButton("TEST");
-		resetTest = new JButton("RESET");
-		addCars = new JButton("Add");
 
 		testRate.setOrientation(JSlider.HORIZONTAL);
 		testRate.setPaintLabels(true);
@@ -135,34 +139,8 @@ public class CarControlPanel extends JPanel implements ActionListener {
 					int val = (int) source.getValue();
 					carMap.cars.get(0).setPhi(val / 180.0 * Math.PI);
 					carMap.cars.get(0).theta = val / 180.0 * Math.PI;
-					phiField.setText(val / 180.0 * Math.PI + "");
+					phiField.setValue(val / 180.0 * Math.PI + "");
 					carMap.repaint();
-				}
-			}
-		});
-		startTest.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent ev) {
-				if (ev.getStateChange() == ItemEvent.SELECTED) {
-					xPosField.setEditable(false);
-					yPosField.setEditable(false);
-					phiField.setEditable(false);
-					testTask = new TimerTask() {
-						public void run() {
-							carMap.runCar();
-							Thread.yield();
-						}
-					};
-					testTimer.scheduleAtFixedRate(testTask, 100,
-							1000 / testRate.getValue());
-					startTest.setText("STOP");
-				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
-					if (testTask != null)
-						testTask.cancel();
-					testTask = null;
-					startTest.setText("TEST");
-					xPosField.setEditable(true);
-					yPosField.setEditable(true);
-					phiField.setEditable(true);
 				}
 			}
 		});
@@ -173,10 +151,11 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		submitPanel.add(createEntryFields(), BorderLayout.NORTH);
 		JPanel p = new JPanel();
 		p.setLayout(new GridLayout(2, 1));
-		p.add(phiSize);
+		// p.add(phiSize);
 		p.add(testRate);
+		p.add(createButtons());
 		submitPanel.add(p, BorderLayout.CENTER);
-		submitPanel.add(createButtons(), BorderLayout.SOUTH);
+		// submitPanel.add(createButtons(), BorderLayout.SOUTH);
 		return submitPanel;
 	}
 
@@ -192,8 +171,6 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		bbText = new JTextField();
 
 		Font displayFont = new Font("Fixedsys", Font.PLAIN, 16);
-		xSpinner.setEnabled(false);
-		ySpinner.setEnabled(false);
 		d1Text.setEditable(false);
 		d2Text.setEditable(false);
 		d3Text.setEditable(false);
@@ -279,7 +256,7 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		return settingPanel;
 	}
 
-	JFormattedTextField xPosField, yPosField, phiField;
+	JSpinner xPosField, yPosField, phiField;
 
 	protected JComponent createEntryFields() {
 		JPanel panel = new JPanel(new SpringLayout());
@@ -289,19 +266,26 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		JLabel[] labels = new JLabel[labelStrings.length];
 		JComponent[] fields = new JComponent[labelStrings.length];
 		int fieldNum = 0;
+
+		SpinnerModel xmodel = new SpinnerNumberModel(0.00, -100, 100, 0.1);
+		SpinnerModel ymodel = new SpinnerNumberModel(0.00, -100, 100, 0.1);
+		SpinnerModel pmodel = new SpinnerNumberModel(0.00, -100, 100, 0.02);
+		xPosField = new JSpinner(xmodel);
+		yPosField = new JSpinner(ymodel);
+		phiField = new JSpinner(pmodel);
 		// Create the text field and set it up.
-		xPosField = new JFormattedTextField(new DecimalFormat("###.###"));
-		xPosField.setColumns(10);
+		// xPosField = new JFormattedTextField(new DecimalFormat("###.###"));
+		// xPosField.setColumns(10);
 		xPosField.setValue(0.0);
 		fields[fieldNum++] = xPosField;
 
-		yPosField = new JFormattedTextField(new DecimalFormat("###.###"));
-		yPosField.setColumns(10);
+		// yPosField = new JFormattedTextField(new DecimalFormat("###.###"));
+		// yPosField.setColumns(10);
 		yPosField.setValue(0.0);
 		fields[fieldNum++] = yPosField;
 
-		phiField = new JFormattedTextField(new DecimalFormat("###.###"));
-		phiField.setColumns(10);
+		// phiField = new JFormattedTextField(new DecimalFormat("###.###"));
+		// phiField.setColumns(10);
 		double v = 1.570796f;
 		phiField.setValue(v);
 		fields[fieldNum++] = phiField;
@@ -309,8 +293,8 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		// Associate label/field pairs, add everything,
 		// and lay it out.
 
-		ActionListener action = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+		ChangeListener action = new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
 				Car car = carMap.cars.get(0);
 				if (xPosField.getValue() instanceof Double)
 					car.setX((Double) xPosField.getValue());
@@ -333,9 +317,9 @@ public class CarControlPanel extends JPanel implements ActionListener {
 			labels[i].setLabelFor(fields[i]);
 			panel.add(labels[i]);
 			panel.add(fields[i]);
-			if (fields[i] instanceof JFormattedTextField) {
-				JFormattedTextField f = (JFormattedTextField) fields[i];
-				f.addActionListener(action);
+			if (fields[i] instanceof JSpinner) {
+				JSpinner f = (JSpinner) fields[i];
+				f.addChangeListener(action);
 			}
 		}
 		int GAP = 10;
@@ -346,10 +330,19 @@ public class CarControlPanel extends JPanel implements ActionListener {
 	}
 
 	protected JComponent createButtons() {
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-		startTest.setFont(new Font("Fixedsys", Font.BOLD, 20));
-		resetTest.setFont(new Font("Fixedsys", Font.BOLD, 20));
-		addCars.setFont(new Font("Fixedsys", Font.BOLD, 20));
+		JPanel panel = new JPanel(new GridLayout(2, 2));
+		// new JPanel(new FlowLayout(FlowLayout.TRAILING));
+
+		startTest = new JToggleButton("Run(Fuzzy)");
+		resetTest = new JButton("Reset");
+		addCars = new JButton("Add");
+		GAbutton = new JButton("Gene Build");
+		GASimbutton = new JToggleButton("Run(GeneX)");
+		Font displayFont = new Font("Courier New", Font.PLAIN, 14);
+		startTest.setFont(displayFont);
+		resetTest.setFont(displayFont);
+		GAbutton.setFont(displayFont);
+		GASimbutton.setFont(displayFont);
 
 		resetTest.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -373,6 +366,7 @@ public class CarControlPanel extends JPanel implements ActionListener {
 				carMap.repaint();
 			}
 		});
+
 		addCars.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Car car = new Car(new Engine());
@@ -380,13 +374,89 @@ public class CarControlPanel extends JPanel implements ActionListener {
 				carMap.obstacles.add(new CarObstacle(car));
 			}
 		});
+
+		GAbutton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				double[][] in = graphicPanel.getDataInput();
+				double[] out = graphicPanel.getDataOutput();
+				GeneControl.getInstance().setGeneEnvironment(in, out);
+				GeneControl.getInstance().restartMachine(
+						GeneControl.getInstance().prevBestGene);
+			}
+		});
+
+		startTest.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent ev) {
+				if (ev.getStateChange() == ItemEvent.SELECTED) {
+					if (testTask != null)
+						testTask.cancel();
+					testTask = new TimerTask() {
+						public void run() {
+							carMap.runCar();
+							Thread.yield();
+						}
+					};
+					testTimer.scheduleAtFixedRate(testTask, 100,
+							1000 / testRate.getValue());
+					startTest.setText("STOP");
+				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
+					if (testTask != null)
+						testTask.cancel();
+					testTask = null;
+					startTest.setText("RUN(Fuzzy)");
+				}
+			}
+		});
+		GASimbutton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent ev) {
+				if (ev.getStateChange() == ItemEvent.SELECTED) {
+					testTask = new TimerTask() {
+						public void run() {
+							Car car = carMap.cars.get(0);
+							Gene engine = GeneControl.getInstance()
+									.getBestGene();
+							try {
+								double d1 = Double.parseDouble(d1Text.getText());
+								double d2 = Double.parseDouble(d2Text.getText());
+								double d3 = Double.parseDouble(d3Text.getText());
+								double deltaTheta = engine.rbf
+										.calcuateOutput(new double[] { d1, d2,
+												d3 });
+								deltaTheta = deltaTheta * 80 - 40;
+								System.out
+										.printf("%f %f\n", deltaTheta,
+												new FuzzySystemII().program(d1,
+														d2, d3));
+								deltaTheta = deltaTheta / 180.0 * Math.PI;
+								car.run(deltaTheta);
+								carMap.repaint();
+							} catch (Exception e) {
+								e.getStackTrace();
+							}
+							Thread.yield();
+						}
+					};
+					testTimer.scheduleAtFixedRate(testTask, 100,
+							1000 / testRate.getValue());
+					GASimbutton.setText("STOP");
+				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
+					if (testTask != null)
+						testTask.cancel();
+					testTask = null;
+					GASimbutton.setText("RUN(GeneX)");
+				}
+			}
+		});
 		panel.add(startTest);
 		panel.add(resetTest);
-		panel.add(addCars);
+		panel.add(GASimbutton);
+		panel.add(GAbutton);
+		// panel.add(addCars);
 		// Match the SpringLayout's gap, subtracting 5 to make
 		// up for the default gap FlowLayout provides.
 		int GAP = 10;
 		panel.setBorder(BorderFactory.createEmptyBorder(0, 0, GAP - 5, GAP - 5));
+		panel.setPreferredSize(new Dimension(240, 100));
 		return panel;
 	}
 }

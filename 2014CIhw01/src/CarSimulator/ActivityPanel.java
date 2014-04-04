@@ -1,72 +1,126 @@
 package CarSimulator;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.TimerTask;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 public class ActivityPanel extends JPanel {
-	public java.util.Timer testTimer = new java.util.Timer("Record Timer");
-	public TimerTask testTask;
-	public double[] f;
-	public double timeStamp;
+	JTable table;
+	public int limitRecord = 512;
+	JLabel rowCount;
 
 	public ActivityPanel() {
 		super();
+
 		this.setBorder(new TitledBorder("Fuzzy System"));
-		f = new double[50];
-		testTask = new TimerTask() {
-			public void run() {
-				for (int i = 0; i < f.length - 1; i++) {
-					f[i] = f[i + 1];
-				}
-				f[f.length - 1] = timeStamp;
-				timeStamp = 0;
-				ActivityPanel.this.repaint();
-				Thread.yield();
-			}
-		};
-		testTimer.scheduleAtFixedRate(testTask, 3000, 250);
+
+		initializePanel();
 	}
 
-	public void addTheta(double theta) {
-		timeStamp = theta;
-	}
-
-	public Point transOnScreen(double x, double y) {
-		int vx, vy;
-		y = y * this.getHeight() / 2;
-		vx = (int) (x * this.getWidth() / f.length);
-		vy = (int) (this.getHeight() / 2 - y);
-		return new Point(vx, vy);
-	}
-
-	Color lineColor = new Color(0x00, 0xaa, 0x00);
-	Color filledColor = new Color(0x77, 0xdd, 0xff, 150);
-	Color backgroundColor = new Color(0x44, 0x44, 0x44, 150);
-
-	@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		Graphics2D g2d = (Graphics2D) g;
-		g2d.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT,
-				BasicStroke.JOIN_BEVEL, 3));
-		g2d.setColor(lineColor);
-		for (int i = 0; i < f.length - 1; i++) {
-			Point p1 = transOnScreen(i, f[i]);
-			Point p2 = transOnScreen(i + 1, f[i + 1]);
-			g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
+	public void recordData(double d1, double d2, double d3, double theta) {
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		model.addRow(new Object[] { d1, d2, d3, theta });
+		if (model.getRowCount() > limitRecord) {
+			model.removeRow(0);
 		}
-		g2d.setFont(new Font("Consolas", Font.BOLD, 24));
-		g2d.drawString(String.format("%-5.1f", f[f.length - 1] / Math.PI * 180),
-			30, 50);
+		rowCount.setText(model.getRowCount() + "");
+		
+	}
+
+	public double[][] getDataInput() {
+		double[][] ret;
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		int inColumn = 3;
+		ret = new double[model.getRowCount()][inColumn];
+		for (int i = 0; i < model.getRowCount(); i++) {
+			for (int j = 0; j < inColumn; j++) {
+				ret[i][j] = (Double) model.getValueAt(i, j);
+			}
+		}
+		return ret;
+	}
+
+	public double[] getDataOutput() {
+		double[] ret;
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		int outColumnIdx = 3;
+		ret = new double[model.getRowCount()];
+		for (int i = 0; i < model.getRowCount(); i++) {
+			ret[i] = (((Double) model.getValueAt(i, outColumnIdx) + 40)) / 80.0;
+			// Normalization
+		}
+		return ret;
+	}
+
+	private void initializePanel() {
+		//
+		// Defines table's column names.
+		//
+		String[] columnNames = { "d1", "d2", "d3", "theta" };
+
+		//
+		// Defines table's data.
+		//
+		Object[][] data = { { 0f, 0f, 0f, 0f } };
+
+		//
+		// Defines table's column width.
+		//
+		int[] columnsWidth = { 50, 50, 50, 50 };
+
+		//
+		// Creates an instance of JTable and fill it with data and
+		// column names information.
+		//
+		DefaultTableModel model = new DefaultTableModel();
+		table = new JTable(model);
+		model.setColumnIdentifiers(columnNames);
+		// table = new JTable(data, columnNames);
+		//
+		// Configures table's column width.
+		//
+		int i = 0;
+		for (int width : columnsWidth) {
+			TableColumn column = table.getColumnModel().getColumn(i++);
+			column.setMinWidth(width);
+			column.setMaxWidth(width);
+			column.setPreferredWidth(width);
+		}
+
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setPreferredSize(new Dimension(220, 80));
+		JButton clrButton = new JButton("Clear");
+		clrButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				while (model.getRowCount() > 0)
+					model.removeRow(0);
+			}
+		});
+		JPanel panel = new JPanel(new GridLayout(1, 2));
+		rowCount = new JLabel("0");
+		panel.add(rowCount);
+		panel.add(clrButton);
+		this.setLayout(new BorderLayout());
+		this.add(scrollPane, BorderLayout.CENTER);
+		this.add(panel, BorderLayout.SOUTH);
 	}
 }

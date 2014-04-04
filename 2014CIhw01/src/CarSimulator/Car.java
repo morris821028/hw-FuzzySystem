@@ -3,8 +3,8 @@ package CarSimulator;
 import javax.swing.*;
 
 import calcModel.Engine;
-import calcModel.FuzzySystem;
-import calcModel.FuzzySystemII;
+import calcModel.fuzzySystem.FuzzySystem;
+import calcModel.fuzzySystem.FuzzySystemII;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -59,8 +59,15 @@ public class Car {
 
 	public synchronized void run() {
 		theta = phi + fuzzySystem.program(d1, d2, d3) / 180.0 * Math.PI;
-		CarControlPanel.getInstance().recordDeltaTheta(theta - phi);
+		CarControlPanel.getInstance().recordDeltaTheta(d1, d2, d3, theta - phi);
 		engine.runDeltaT(this, theta - phi);
+	}
+
+	public synchronized void run(double deltaTheta) {
+		theta = phi + deltaTheta;
+		CarControlPanel.getInstance().recordDeltaTheta(d1, d2, d3, theta - phi);
+		engine.runDeltaT(this, theta - phi);
+		phi = theta;
 	}
 
 	public boolean hasCollision(CarMap cmap) {
@@ -124,7 +131,7 @@ public class Car {
 			String msg = String
 					.format("[Collision] x %.3f y %.3f phi %.3f d1 %.3f d2 %.3f d3 %.3f\n",
 							this.getX(), this.getY(), this.getPhi(), v1, v2, v3);
-			CarControlPanel.getInstance().consoleArea.append("\r\n" + msg);
+			//CarControlPanel.getInstance().consoleArea.append("\r\n" + msg);
 			System.out.printf(msg);
 		}
 		CarControlPanel.getInstance().updateInfo(this, v1, v2, v3,
