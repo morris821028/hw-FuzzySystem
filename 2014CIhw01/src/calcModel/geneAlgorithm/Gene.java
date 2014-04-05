@@ -7,11 +7,15 @@ public class Gene {
 	 * double theta; double[] W; double[][] M; double[] sigma;
 	 */
 
-	public final int J = 3, xDim = 3;
-
+	public static final int J = 3, xDim = 3;
+	public static final int DNALength = 1 + J + J * xDim + J;
 	public Gene() {
 		rbf = new RBF(J, xDim);
-		DNA = new double[1 + J + J * xDim + J];
+		DNA = new double[DNALength];
+	}
+
+	public static int getDNALength() {
+		return DNALength;
 	}
 
 	public Gene clone() {

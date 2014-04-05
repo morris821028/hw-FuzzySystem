@@ -11,20 +11,19 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 public class GeneMachine {
-
-	public int numberOfoffspring = 512;
+	public int numberOfoffspring = 256;
 	public double[][] dataInput;
 	public double[] dataOutput;
 	private GenePool genePool;
 	public int processOfoffspring;
 
 	public GeneMachine(double[][] dataInput, double[] dataOutput) {
-		genePool = new GenePool();
+		genePool = new GenePool(this);
 		this.dataInput = dataInput;
 		this.dataOutput = dataOutput;
 	}
 
-	public void init(Gene prevBest) {
+	public void init(Gene prevBest[]) {
 		genePool.init(prevBest);
 	}
 
@@ -42,7 +41,7 @@ public class GeneMachine {
 						dlg = new JDialog();
 						dpb = new JProgressBar(0, 100);
 						bestEn = new JLabel("Best E(n) = X");
-						
+
 						dlg.setTitle("Gene Algorithm Build");
 						dpb.setStringPainted(true);
 						dlg.add(BorderLayout.CENTER, dpb);
@@ -96,6 +95,13 @@ public class GeneMachine {
 						}
 					});
 
+				}
+				Gene g = getBestGene();
+				if (g != null) {
+					GeneControl.getInstance().dataBase.add(g);
+					GeneControl.getInstance().storeMachine();
+					System.out.println("Data size = "
+							+ GeneControl.getInstance().dataBase.size());
 				}
 				dlg.dispose();
 			}
