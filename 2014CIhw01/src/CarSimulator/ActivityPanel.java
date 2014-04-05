@@ -24,7 +24,7 @@ import javax.swing.table.TableModel;
 
 public class ActivityPanel extends JPanel {
 	JTable table;
-	public int limitRecord = 512;
+	public int limitRecord = 1024;
 	JLabel rowCount;
 
 	public ActivityPanel() {
@@ -53,6 +53,7 @@ public class ActivityPanel extends JPanel {
 		for (int i = 0; i < model.getRowCount(); i++) {
 			for (int j = 0; j < inColumn; j++) {
 				ret[i][j] = (Double) model.getValueAt(i, j);
+				ret[i][j] = Math.min(30, ret[i][j]);
 			}
 		}
 		return ret;

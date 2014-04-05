@@ -381,7 +381,7 @@ public class CarControlPanel extends JPanel implements ActionListener {
 				double[] out = graphicPanel.getDataOutput();
 				GeneControl.getInstance().setGeneEnvironment(in, out);
 				GeneControl.getInstance().restartMachine(
-						GeneControl.getInstance().prevBestGene);
+						GeneControl.getInstance().getBestGene());
 			}
 		});
 
@@ -411,22 +411,29 @@ public class CarControlPanel extends JPanel implements ActionListener {
 			public void itemStateChanged(ItemEvent ev) {
 				if (ev.getStateChange() == ItemEvent.SELECTED) {
 					testTask = new TimerTask() {
+						Gene engine;
+						Car car;
+
+						public TimerTask init(Gene engine, Car car) {
+							this.engine = engine;
+							this.car = car;
+							return this;
+						}
+
 						public void run() {
-							Car car = carMap.cars.get(0);
-							Gene engine = GeneControl.getInstance()
-									.getBestGene();
 							try {
 								double d1 = Double.parseDouble(d1Text.getText());
 								double d2 = Double.parseDouble(d2Text.getText());
 								double d3 = Double.parseDouble(d3Text.getText());
+								d1 = Math.min(d1, 30);
+								d2 = Math.min(d2, 30);
+								d3 = Math.min(d3, 30);
 								double deltaTheta = engine.rbf
 										.calcuateOutput(new double[] { d1, d2,
 												d3 });
 								deltaTheta = deltaTheta * 80 - 40;
-								System.out
-										.printf("%f %f\n", deltaTheta,
-												new FuzzySystemII().program(d1,
-														d2, d3));
+								deltaTheta = Math.max(Math.min(deltaTheta, 40),
+										-40);
 								deltaTheta = deltaTheta / 180.0 * Math.PI;
 								car.run(deltaTheta);
 								carMap.repaint();
@@ -435,7 +442,8 @@ public class CarControlPanel extends JPanel implements ActionListener {
 							}
 							Thread.yield();
 						}
-					};
+					}.init(GeneControl.getInstance().getBestGene(),
+							carMap.cars.get(0));
 					testTimer.scheduleAtFixedRate(testTask, 100,
 							1000 / testRate.getValue());
 					GASimbutton.setText("STOP");

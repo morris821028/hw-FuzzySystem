@@ -6,28 +6,33 @@ import java.util.Random;
 public class GenePool {
 	Gene[] gene;
 	Gene[] newGene;
-	public final int poolSize = 256;
+	GeneMachine geneMachine;
+	public final int poolSize = 512;
 	public final double probabilityOfCrossover = 0.5;
 	public final double ratioOfCrossover = 0.5;
 	public final double probabilityOfMutation = 0.5;
 	public final double ratioOfMutation = 0.5;
 
-	public GenePool() {
+	public GenePool(GeneMachine gm) {
 		gene = new Gene[poolSize];
 		newGene = new Gene[poolSize];
 		for (int i = 0; i < gene.length; i++)
 			gene[i] = new Gene();
+		geneMachine = gm;
 		init(null);
 	}
 
-	public void init(Gene prevBest) {
-		if (prevBest == null) {
+	public void init(Gene[] prevBest) {
+		if (prevBest == null || prevBest.length == 0) {
 			for (int i = 0; i < gene.length; i++)
 				gene[i].randomBuild();
 		} else {
+			System.out.println("reused");
 			int percent25 = gene.length / 4;
-			for (int i = 0; i < percent25; i++)
-				gene[i] = prevBest;
+			for (int i = 0; i < percent25; i++) {
+				int x = (int) ((Math.random() * prevBest.length));
+				gene[i] = prevBest[x];
+			}
 			for (int i = percent25; i < gene.length; i++)
 				gene[i].randomBuild();
 		}
@@ -114,22 +119,5 @@ public class GenePool {
 			gene[i].on();
 		}
 		return bestF;
-	}
-}
-
-class GenePair implements Comparable<GenePair> {
-	double f;
-	Gene gene;
-
-	public GenePair(double f, Gene gene) {
-		this.f = f;
-		this.gene = gene;
-	}
-
-	@Override
-	public int compareTo(GenePair o) {
-		if (f == o.f)
-			return 0;
-		return f < o.f ? -1 : 1;
 	}
 }
