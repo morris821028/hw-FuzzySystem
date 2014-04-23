@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
@@ -54,6 +55,7 @@ public class GeneControl {
 			System.out.println("Read local database " + dataBase.size());
 			cin.close();
 		} catch (Exception e) {
+		    JOptionPane.showMessageDialog(null, "提示:\n找不到之前設置的 genePool.txt，本次結束將新增 genePool.txt", "Gene Building", JOptionPane.WARNING_MESSAGE);  
 			System.out.println(e.getMessage());
 		}
 	}
