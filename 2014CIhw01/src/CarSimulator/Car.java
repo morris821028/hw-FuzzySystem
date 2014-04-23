@@ -18,6 +18,7 @@ public class Car {
 	public Vector<Point2D.Double> carPath = new Vector<Point2D.Double>();
 	public FuzzySystem fuzzySystem = new FuzzySystemII();
 	public CarSensor sensor;
+	public double sensorDeg = 50;
 
 	Car(Engine engine) {
 		x = 0;
@@ -113,13 +114,13 @@ public class Car {
 		v1 = Math.hypot(npt.x - this.getX(), npt.y - this.getY());
 
 		npt = sensor.getNearestPoint(map, this.getX(), this.getY(), this.theta
-				- Math.PI / 180.0 * 50);
+				- Math.PI / 180.0 * sensorDeg);
 		p = map.transOnSwing(npt.x, npt.y);
 		g2d.drawLine(x, y, p.x, p.y);
 		v2 = Math.hypot(npt.x - this.getX(), npt.y - this.getY());
 
 		npt = sensor.getNearestPoint(map, this.getX(), this.getY(), this.theta
-				+ Math.PI / 180.0 * 50);
+				+ Math.PI / 180.0 * sensorDeg);
 		p = map.transOnSwing(npt.x, npt.y);
 		g2d.drawLine(x, y, p.x, p.y);
 		v3 = Math.hypot(npt.x - this.getX(), npt.y - this.getY());

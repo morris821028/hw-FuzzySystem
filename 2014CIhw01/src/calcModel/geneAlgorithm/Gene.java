@@ -27,19 +27,19 @@ public class Gene {
 	}
 
 	public void on() {
-		// rbf.theta = Math.min(Math.max(DNA[0], 0), 1);
 		rbf.theta = DNA[0];
+		//rbf.theta = Math.min(Math.max(DNA[0], 0), 1);
 		for (int i = 0; i < J; i++) {
-			// rbf.W[i] = Math.min(Math.max(DNA[i + 1], 0), 80);
 			rbf.W[i] = DNA[i + 1];
+			//rbf.W[i] = Math.min(Math.max(DNA[i + 1], 0), 80);
 		}
 		for (int i = 1 + J, j = 0; i < 1 + J + J * xDim; i++, j++) {
-			// rbf.M[j / xDim][j % xDim] = Math.min(Math.max(DNA[i], 0), 30);
-			rbf.M[j / xDim][j % xDim] = DNA[i];
+			rbf.M[j / xDim][j % xDim] = DNA[i]; 
+			//rbf.M[j / xDim][j % xDim] = Math.min(Math.max(DNA[i], 0), 30);
 		}
 		for (int i = 1 + J + J * xDim, j = 0; i < 1 + J + J * xDim + J; i++, j++) {
-			// rbf.sigma[j] = Math.min(Math.max(DNA[i], 1e-6), 10);
 			rbf.sigma[j] = DNA[i];
+			//rbf.sigma[j] = Math.min(Math.max(DNA[i], 1e-6), 10);
 		}
 	}
 

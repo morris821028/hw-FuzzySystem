@@ -27,6 +27,7 @@ public class CarControlPanel extends JPanel implements ActionListener {
 
 	public JSpinner xSpinner;
 	public JSpinner ySpinner;
+	public JSpinner sensorSpinner;
 	public JTextField d1Text, d2Text, d3Text, bbText;
 	public JCheckBox paintAxis;
 	public JCheckBox paintGrid;
@@ -160,10 +161,12 @@ public class CarControlPanel extends JPanel implements ActionListener {
 	}
 
 	protected JPanel createDataPanel() {
-		SpinnerModel xmodel = new SpinnerNumberModel(0.00, -100, 100, 0.01);
-		SpinnerModel ymodel = new SpinnerNumberModel(0.00, -100, 100, 0.01);
+		SpinnerModel xmodel = new SpinnerNumberModel(0.00, -100, 100, 0.1);
+		SpinnerModel ymodel = new SpinnerNumberModel(0.00, -100, 100, 0.1);
+		SpinnerModel sensormodel = new SpinnerNumberModel(0.00, -100, 100, 0.1);
 		xSpinner = new JSpinner(xmodel);
 		ySpinner = new JSpinner(ymodel);
+		sensorSpinner = new JSpinner(sensormodel);
 
 		d1Text = new JTextField();
 		d2Text = new JTextField();
@@ -183,10 +186,47 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		d2Text.setHorizontalAlignment(JTextField.RIGHT);
 		d3Text.setHorizontalAlignment(JTextField.RIGHT);
 		bbText.setHorizontalAlignment(JTextField.RIGHT);
+		xSpinner.addChangeListener(new ChangeListener() {
+	        @Override
+	        public void stateChanged(ChangeEvent e) {
+	        	JSpinner s = (JSpinner) e.getSource();
+				Car car = carMap.cars.get(0);
+				if (xPosField.getValue() instanceof Double)
+					car.setX((Double) s.getValue());
+				else
+					car.setX((Long) s.getValue());
+				carMap.repaint();
+	        }
+	    });		
+		ySpinner.addChangeListener(new ChangeListener() {
+	        @Override
+	        public void stateChanged(ChangeEvent e) {
+	        	JSpinner s = (JSpinner) e.getSource();
+				Car car = carMap.cars.get(0);
+				if (xPosField.getValue() instanceof Double)
+					car.setY((Double) s.getValue());
+				else
+					car.setY((Long) s.getValue());
+				carMap.repaint();
+	        }
+	    });
+		sensorSpinner.setValue(50);		
+		sensorSpinner.addChangeListener(new ChangeListener() {
+	        @Override
+	        public void stateChanged(ChangeEvent e) {
+	        	JSpinner s = (JSpinner) e.getSource();
+				Car car = carMap.cars.get(0);
+				if (xPosField.getValue() instanceof Double)
+					car.sensorDeg = (Double) s.getValue();
+				else
+					car.sensorDeg = (Long) s.getValue();
+				carMap.repaint();
+	        }
+	    });
 
 		JPanel dataPanel = new JPanel();
 		dataPanel.setBorder(new TitledBorder("Information"));
-		dataPanel.setLayout(new GridLayout(6, 2));
+		dataPanel.setLayout(new GridLayout(7, 2));
 		dataPanel.add(new JLabel("X:"));
 		dataPanel.add(xSpinner);
 		dataPanel.add(new JLabel("Y:"));
@@ -199,6 +239,8 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		dataPanel.add(d3Text);
 		dataPanel.add(new JLabel("Collision:"));
 		dataPanel.add(bbText);
+		dataPanel.add(new JLabel("Sensor-deg:"));
+		dataPanel.add(sensorSpinner);
 		return dataPanel;
 	}
 

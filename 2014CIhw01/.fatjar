@@ -1,10 +1,10 @@
 #Fat Jar Configuration File
-#Fri Apr 04 13:37:15 CST 2014
+#Wed Apr 23 20:59:32 CST 2014
 onejar.license.required=false
 manifest.classpath=
 manifest.removesigners=true
 onejar.checkbox=true
-jarname=D\:\\Morris\\CodeWork\\CIWorkspace\\2014CIhw01\\2014CIhw01_nick.jar
+jarname=D\:\\Morris\\CodeWork\\CIWorkspace\\2014CIhw01\\2014CIhw01.jar
 manifest.mergeall=true
 manifest.mainclass=CarSimulator.Main
 manifest.file=<createnew>

@@ -27,7 +27,7 @@ public class GenePool {
 			for (int i = 0; i < gene.length; i++)
 				gene[i].randomBuild();
 		} else {
-			System.out.println("reused");
+			// System.out.println("reused");
 			int percent25 = gene.length / 4;
 			for (int i = 0; i < percent25; i++) {
 				int x = (int) ((Math.random() * prevBest.length));
