@@ -3,6 +3,12 @@ package CarSimulator;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 import org.pushingpixels.substance.api.skin.*;
 
@@ -10,7 +16,9 @@ import calcModel.Engine;
 
 import java.awt.*;
 import java.util.Hashtable;
+
 import javax.swing.UIManager.*;
+
 public class Main extends JFrame {
 	private Hashtable imgTable = new Hashtable();
 
@@ -34,14 +42,15 @@ public class Main extends JFrame {
 
 	public Main() {
 		try {
-		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-		        if ("Nimbus".equals(info.getName())) {
-		            UIManager.setLookAndFeel(info.getClassName());
-		            break;
-		        }
-		    }
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
 		} catch (Exception e) {
-		    // If Nimbus is not available, you can set the GUI to another look and feel.
+			// If Nimbus is not available, you can set the GUI to another look
+			// and feel.
 		}
 		this.setTitle("100502205 - HW1");
 		this.setSize(1024, 720);
