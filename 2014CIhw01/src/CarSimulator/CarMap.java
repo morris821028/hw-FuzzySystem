@@ -155,6 +155,19 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 
 	private int runCarCount = 0;
 
+	public void recordCarPath() {
+		Car car = cars.get(0);
+		if ((runCarCount++) % 3 == 0) {
+			car.carPath.add(new Point2D.Double(car.getX(), car.getY()));
+			if (car.carPath.size() > 1000) {
+				Vector<Point2D.Double> temp = new Vector<Point2D.Double>();
+				for (int i = car.carPath.size() / 2; i < car.carPath.size(); i++)
+					temp.add(car.carPath.get(i));
+				car.carPath = temp;
+			}
+		}
+	}
+
 	public synchronized boolean runCar() {
 		for (int k = 0; k < cars.size(); k++) {
 			Car car = cars.get(k);
@@ -166,16 +179,9 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 				car.setY(y);
 				continue;
 			}
-			if ((runCarCount++) % 3 == 0) {
-				car.carPath.add(new Point2D.Double(car.getX(), car.getY()));
-				if (car.carPath.size() > 1000) {
-					Vector<Point2D.Double> temp = new Vector<Point2D.Double>();
-					for (int i = car.carPath.size() / 2; i < car.carPath.size(); i++)
-						temp.add(car.carPath.get(i));
-					car.carPath = temp;
-				}
-			}
+
 		}
+		recordCarPath();
 		this.repaint();
 		return true;
 	}

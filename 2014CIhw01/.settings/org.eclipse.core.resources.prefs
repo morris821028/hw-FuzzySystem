@@ -2,5 +2,5 @@ eclipse.preferences.version=1
 encoding//src/CarSimulator/ActivityPanel.java=UTF-8
 encoding//src/CarSimulator/MSlideBar.java=UTF-8
 encoding//src/CarSimulator/Main.java=UTF-8
-encoding//src/calcModel/geneAlgorithm/GeneControl.java=UTF-8
 encoding//src/calcModel/geneAlgorithm/GeneMachine.java=UTF-8
+encoding//src/calcModel/geneAlgorithm/ui/GeneControl.java=UTF-8
