@@ -38,6 +38,8 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import calcModel.geneAlgorithm.ui.GeneControl;
+
 public class GeneMachine {
 	public int numberOfoffspring = 256;
 	public double[][] dataInput;
@@ -46,11 +48,13 @@ public class GeneMachine {
 	public int processOfoffspring;
 
 	public GeneMachine(double[][] dataInput, double[] dataOutput) {
-		genePool = new GenePool(this);
+		genePool = new GenePool(this, 512, 0.5, 0.5, 0.5, 0.5);
 		this.dataInput = dataInput;
 		this.dataOutput = dataOutput;
 	}
-
+	public void setGenePool(int size, double pc, double rc, double pm, double rm) {
+		genePool = new GenePool(this, size, pc, rc, pm, rm);
+	}
 	public void init(Gene prevBest[]) {
 		genePool.init(prevBest);
 	}
@@ -111,7 +115,7 @@ public class GeneMachine {
 					.getModel();
 			Object[] row = new Object[gene.getDNALength()];
 			for (int i = 0; i < row.length; i++)
-				row[i] = gene.DNA[i];
+				row[i] = gene.getDNA()[i];
 			model.addRow(row);
 		}
 	}
@@ -128,7 +132,7 @@ public class GeneMachine {
 		return scrollPane;
 	}
 
-	public void openDialog() {
+	public boolean openDialog() {
 		Thread r = new Thread() {
 			public void run() {
 				SwingWorker worker = new SwingWorker() {
@@ -198,6 +202,7 @@ public class GeneMachine {
 			}
 		};
 		r.start();
+		return true;
 	}
 
 	public void on() {
@@ -209,7 +214,8 @@ public class GeneMachine {
 					double best = genePool.crossover(dataInput, dataOutput);
 					if (bestEn != null) {
 						bestEn.setText("Best E(n) = " + best);
-						dataset.addValue(best, "M1", "" + i);
+						if(dataset != null)
+							dataset.addValue(best, "M1", "" + i);
 						recordBestGene();
 					}
 					SwingUtilities.invokeLater(new Runnable() {

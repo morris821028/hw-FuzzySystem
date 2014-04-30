@@ -7,13 +7,22 @@ public class GenePool {
 	Gene[] gene;
 	Gene[] newGene;
 	GeneMachine geneMachine;
-	public final int poolSize = 512;
-	public final double probabilityOfCrossover = 0.5;
-	public final double ratioOfCrossover = 0.5;
-	public final double probabilityOfMutation = 0.5;
-	public final double ratioOfMutation = 0.5;
+	public int poolSize = 512;
+	public double probabilityOfCrossover = 0.5;
+	public double ratioOfCrossover = 0.5;
+	public double probabilityOfMutation = 0.5;
+	public double ratioOfMutation = 0.5;
 
-	public GenePool(GeneMachine gm) {
+	public GenePool(GeneMachine gm, int poolSize,
+			double probabilityOfCrossover, double ratioOfCrossover,
+			double probabilityOfMutation, double ratioOfMutation) {
+		
+		this.poolSize = poolSize;
+		this.probabilityOfCrossover = probabilityOfCrossover;
+		this.ratioOfCrossover = ratioOfCrossover;
+		this.probabilityOfMutation = probabilityOfMutation;
+		this.ratioOfMutation = ratioOfMutation;
+		
 		gene = new Gene[poolSize];
 		newGene = new Gene[poolSize];
 		for (int i = 0; i < gene.length; i++)
@@ -43,9 +52,9 @@ public class GenePool {
 	public void geneCrossover(int x, int y, Gene xg, Gene yg) {
 		double ratio = (Math.random() - 0.5) * 2 * this.ratioOfCrossover;
 		Gene nx = new Gene(), ny = new Gene();
-		for (int i = 0; i < xg.DNA.length; i++) {
-			nx.DNA[i] = xg.DNA[i] + ratio * (xg.DNA[i] - yg.DNA[i]);
-			ny.DNA[i] = yg.DNA[i] - ratio * (xg.DNA[i] - yg.DNA[i]);
+		for (int i = 0; i < xg.getDNA().length; i++) {
+			nx.getDNA()[i] = xg.getDNA()[i] + ratio * (xg.getDNA()[i] - yg.getDNA()[i]);
+			ny.getDNA()[i] = yg.getDNA()[i] - ratio * (xg.getDNA()[i] - yg.getDNA()[i]);
 		}
 		newGene[x] = nx;
 		newGene[y] = ny;
@@ -53,9 +62,9 @@ public class GenePool {
 
 	public void geneMutation(Gene g) {
 		double ratio = (Math.random() - 0.5) * 2 * this.ratioOfMutation;
-		for (int i = 0; i < g.DNA.length; i++) {
+		for (int i = 0; i < g.getDNA().length; i++) {
 			if (Math.random() < ratio)
-				g.DNA[i] = g.DNA[i] + ratio * Math.random() * g.DNA[i];
+				g.getDNA()[i] = g.getDNA()[i] + ratio * Math.random() * g.getDNA()[i];
 		}
 	}
 

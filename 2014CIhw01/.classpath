@@ -6,5 +6,8 @@
 	<classpathentry kind="lib" path="lib/trident-7.0.jar"/>
 	<classpathentry kind="lib" path="lib/jcommon-1.0.21.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.17.jar"/>
+	<classpathentry kind="lib" path="lib/G.demos.jar"/>
+	<classpathentry kind="lib" path="lib/G.jar"/>
+	<classpathentry kind="lib" path="lib/G.src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

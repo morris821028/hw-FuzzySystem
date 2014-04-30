@@ -2,7 +2,7 @@ package calcModel.geneAlgorithm;
 
 public class GenePair implements Comparable<GenePair> {
 	double f;
-	Gene gene;
+	public Gene gene;
 
 	public GenePair(double f, Gene gene) {
 		this.f = f;

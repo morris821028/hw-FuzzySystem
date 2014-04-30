@@ -10,7 +10,7 @@ import calcModel.Engine;
 import calcModel.fuzzySystem.FuzzySystemFactory;
 import calcModel.fuzzySystem.FuzzySystemII;
 import calcModel.geneAlgorithm.Gene;
-import calcModel.geneAlgorithm.GeneControl;
+import calcModel.geneAlgorithm.ui.GeneControl;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -478,6 +478,7 @@ public class CarControlPanel extends JPanel implements ActionListener {
 										-40);
 								deltaTheta = deltaTheta / 180.0 * Math.PI;
 								car.run(deltaTheta);
+								carMap.recordCarPath();
 								carMap.repaint();
 							} catch (Exception e) {
 								e.getStackTrace();
