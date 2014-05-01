@@ -11,5 +11,5 @@ Fuzzy System, Gene Algorithm solved simulate car run.
 ## User Manual 使用手冊 ##
 
 ![img](/images/demo.PNG)
-![img](/images/demo2.PNG)
-![img](/images/demo3.PNG)
+![img](/images/demo2.png)
+![img](/images/demo3.png)
