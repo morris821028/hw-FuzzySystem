@@ -5,13 +5,25 @@ import java.awt.event.*;
 import java.awt.geom.Point2D;
 
 import javax.swing.*;
-import java.util.*;
 
+import CarSimulator.component.Bullet;
+import CarSimulator.component.Car;
+import CarSimulator.component.Monster;
+
+import java.util.*;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseWheelEvent;
 
 public class CarMap extends JPanel implements KeyEventDispatcher,
 		MouseListener, MouseMotionListener, MouseWheelListener {
+	private static CarMap singleton = null;
+
+	public static CarMap getInstance() {
+		if (singleton == null)
+			singleton = new CarMap();
+		return singleton;
+	}
+
 	public Polygon road;
 	public Polygon obstacle[];
 	public Color roadColor;
@@ -24,8 +36,11 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 	// game element.
 	java.util.Timer bulletRepeatTimer = new java.util.Timer("BulletRepeatTimer");
 	Map<Bullet, TimerTask> bulletMap = new HashMap<Bullet, TimerTask>();
+	java.util.Timer monsterRepeatTimer = new java.util.Timer(
+			"BulletRepeatTimer");
+	Map<Monster, TimerTask> monsterMap = new HashMap<Monster, TimerTask>();
 
-	public CarMap(Car car) {
+	public CarMap() {
 		this.setBackground(Color.BLACK);
 		// this.setBackground(new Color(112, 180, 215));
 		int x[] = { -80, 80, 80, -80 };
@@ -45,7 +60,7 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 				while (true) {
 					try {
 						CarMap.this.repaint();
-						Thread.sleep(60);
+						Thread.sleep(30);
 					} catch (Exception e) {
 						System.out.println(e.getMessage());
 					}
@@ -165,6 +180,7 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 			car.paint(g, this);
 		}
 		paintBulletOnMap(g);
+		paintMonsterOnMap(g);
 	}
 
 	public void paintBulletOnMap(Graphics g) {
@@ -175,6 +191,34 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 			Bullet b = ((Bullet) key);
 			Point p = transOnSwing(b.getX(), b.getY());
 			b.paint(g, p.x, p.y);
+		}
+		iter = bulletMap.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			Object key = entry.getKey();
+			Bullet b = ((Bullet) key);
+			if (!b.run()) {
+				iter.remove();
+			}
+		}
+	}
+
+	public void paintMonsterOnMap(Graphics g) {
+		Iterator iter = monsterMap.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			Object key = entry.getKey();
+			Monster b = ((Monster) key);
+			Point p = transOnSwing(b.getX(), b.getY());
+			b.paint(g, p.x, p.y, monsterMap);
+		}
+		iter = monsterMap.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			Object key = entry.getKey();
+			Monster b = ((Monster) key);
+			if (!b.run())
+				iter.remove();
 		}
 	}
 
@@ -260,7 +304,7 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 
 	private synchronized void addBullet() {
 		assert EventQueue.isDispatchThread();
-
+		addMonster();
 		int rate = 50;
 		long period = (long) (1000.0 / rate), delay = 60;
 
@@ -274,10 +318,10 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 			}
 
 			public void run() {
-				if (!b.run()) {
+				/*if (!b.run()) {
 					bulletMap.get(b).cancel();
 					bulletMap.remove(b);
-				}
+				}*/
 				// Attempt to make it more responsive to key-releases.
 				// Even if there are multiple this-tasks piled up (due to
 				// "scheduleAtFixedRate") we don't want this thread to take
@@ -286,7 +330,39 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 			}
 		}.init(b);
 		bulletMap.put(b, tt);
-		bulletRepeatTimer.scheduleAtFixedRate(tt, delay, period);
+		//bulletRepeatTimer.scheduleAtFixedRate(tt, delay, period);
+	}
+
+	private synchronized void addMonster() {
+		assert EventQueue.isDispatchThread();
+
+		int rate = 50;
+		long period = (long) (1000.0 / rate), delay = 60;
+
+		Monster b = new Monster(Math.random() * 100, Math.random() * 100,
+				this.road, this.obstacle);
+		TimerTask tt = new TimerTask() {
+			Monster b;
+
+			public TimerTask init(Monster b) {
+				this.b = b;
+				return this;
+			}
+
+			public void run() {
+				/*
+				 * if (!b.run()) { monsterMap.get(b).cancel();
+				 * monsterMap.remove(b); }
+				 */
+				// Attempt to make it more responsive to key-releases.
+				// Even if there are multiple this-tasks piled up (due to
+				// "scheduleAtFixedRate") we don't want this thread to take
+				// precedence over AWT thread.
+				Thread.yield();
+			}
+		}.init(b);
+		monsterMap.put(b, tt);
+		// monsterRepeatTimer.scheduleAtFixedRate(tt, delay, period);
 	}
 
 	@Override

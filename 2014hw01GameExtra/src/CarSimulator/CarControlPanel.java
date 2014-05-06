@@ -1,6 +1,9 @@
 package CarSimulator;
 
 import javax.swing.*;
+
+import CarSimulator.component.Car;
+
 import java.awt.*;
 
 public class CarControlPanel extends JPanel {

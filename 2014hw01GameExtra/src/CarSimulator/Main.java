@@ -1,6 +1,10 @@
 package CarSimulator;
 
 import javax.swing.*;
+
+import CarSimulator.component.Car;
+import CarSimulator.component.Engine;
+
 import java.awt.*;
 
 public class Main extends JFrame {
@@ -12,9 +16,9 @@ public class Main extends JFrame {
 
 		this.setLayout(new BorderLayout());
 		Car car = new Car(new Engine());
-		CarMap carmap = new CarMap(car);
+		CarMap.getInstance().car = car;
 		//CarControlPanel ctrlPanel = CarControlPanel.getInstance();
-		this.add(carmap, BorderLayout.CENTER);
+		this.add(CarMap.getInstance(), BorderLayout.CENTER);
 		//this.add(ctrlPanel, BorderLayout.EAST);
 	}
 

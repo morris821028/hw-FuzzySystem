@@ -2,6 +2,10 @@ package CarSimulator;
 
 import java.awt.Polygon;
 
+import CarSimulator.component.BowBullet;
+import CarSimulator.component.Bullet;
+import CarSimulator.component.LimitedBullet;
+
 public class CarWeaponry {
 	public static Bullet shoot(String kind, double x, double y, double phi, Polygon road, Polygon obstacle[]) {
 		if(kind.equals("NORMAL"))
