@@ -1,13 +1,13 @@
-package calcModel.geneAlgorithm;
+package calcModel.AInetwork;
 
 public class RBF {
 
-	double theta;
-	double[] sigma;
-	double[] W;
-	double[][] M;
+	public double theta;
+	public double[] sigma;
+	public double[] W;
+	public double[][] M;
 
-	int J, xDim;
+	public int J, xDim;
 
 	public RBF(int J, int xDim) {
 		W = new double[J];

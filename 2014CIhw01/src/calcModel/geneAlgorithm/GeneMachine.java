@@ -66,20 +66,7 @@ public class GeneMachine {
 	JTable bestGeneTable;
 
 	private CategoryDataset setDataset() {
-		// 將rows資料存入陣列
-		// String[] series = { "第一季", "第二季", "第三季" };
-		// 將columns資料存入陣列...
-		// String[] category = { "咖啡", "啤酒", "果汁", "汽水", "茶" };
-		// 將table資料存入陣列...
-		// double[][] data = { { 8.0, 5.5, 10.2 }, { 4.2, 7.8, 23.0 },
-		// { 3.5, 5.3, 6.8 }, { 9.2, 14.5, 10.7 }, { 6.6, 8.3, 7.9 } };
 		dataset = new DefaultCategoryDataset();
-		// 將資料填入dataset實體...
-		// for (int i = 0; i < category.length; i++) {
-		// for (int j = 0; j < series.length; j++) {
-		// dataset.addValue(data[i][j], series[j], category[i]);
-		// }
-		// }
 		return dataset;
 	}
 

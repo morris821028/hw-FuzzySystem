@@ -1,5 +1,7 @@
 package calcModel.geneAlgorithm;
 
+import calcModel.AInetwork.RBF;
+
 public class Gene {
 	public RBF rbf;
 	private double[] DNA;
