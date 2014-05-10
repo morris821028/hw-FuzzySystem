@@ -15,6 +15,9 @@ import java.io.FileInputStream;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 
+import calcModel.geneAlgorithm.Gene;
+import calcModel.geneAlgorithm.ui.GeneControl;
+
 import java.io.InputStream;
 
 public class CarMap extends JPanel implements KeyEventDispatcher,
@@ -477,5 +480,26 @@ public class CarMap extends JPanel implements KeyEventDispatcher,
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
+	}
+
+	TimerTask testTask;
+	java.util.Timer testTimer = new java.util.Timer("Test Timer");
+
+	public void driveCar(int fps) {
+		if (testTask != null)
+			testTask.cancel();
+		testTask = new TimerTask() {
+			public void run() {
+				runCar();
+				Thread.yield();
+			}
+		};
+		testTimer.scheduleAtFixedRate(testTask, 100, 1000 / fps);
+	}
+
+	public void stopCar() {
+		if (testTask != null)
+			testTask.cancel();
+		testTask = null;
 	}
 }

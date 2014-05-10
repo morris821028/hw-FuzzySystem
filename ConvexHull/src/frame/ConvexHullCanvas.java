@@ -136,13 +136,16 @@ public class ConvexHullCanvas extends JPanel implements KeyEventDispatcher,
 
 	public void paintPlane2DPoint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		g2d.setColor(Color.RED);
-		g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_BUTT,
+		g2d.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT,
 				BasicStroke.JOIN_BEVEL, 10));
 		if (plane2DPoint != null) {
 			for (int i = 0; i < plane2DPoint.length; i++) {
 				Point p = this.transOnSwing(plane2DPoint[i].x,
 						plane2DPoint[i].y);
+				g2d.setColor(Color.CYAN);
+				g.fillOval(p.x - pointRadius, p.y - pointRadius,
+						2 * pointRadius, 2 * pointRadius);
+				g2d.setColor(Color.BLACK);
 				g.drawOval(p.x - pointRadius, p.y - pointRadius,
 						2 * pointRadius, 2 * pointRadius);
 			}

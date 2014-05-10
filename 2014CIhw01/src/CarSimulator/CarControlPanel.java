@@ -8,9 +8,8 @@ import javax.swing.event.ChangeListener;
 import obstacle.CarObstacle;
 import calcModel.Engine;
 import calcModel.fuzzySystem.FuzzySystemFactory;
-import calcModel.fuzzySystem.FuzzySystemII;
-import calcModel.geneAlgorithm.Gene;
 import calcModel.geneAlgorithm.ui.GeneControl;
+import calcModel.psoAlgorithm.ui.PsoControl;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -39,9 +38,11 @@ public class CarControlPanel extends JPanel implements ActionListener {
 	public JComboBox fuzzyChoose;
 	public JToggleButton startTest;
 	public JToggleButton GASimbutton;
+	public JToggleButton PSOSimbutton;
 	public JButton resetTest;
 	public JButton addCars;
 	public JButton GAbutton;
+	public JButton PSObutton;
 	public JSlider phiSize;
 	public JSlider testRate;
 	public JTextArea consoleArea;
@@ -62,16 +63,15 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		consoleArea.setColumns(20);
 		consoleArea.setRows(10);
 
-		this.setLayout(new GridLayout(2, 2));
+		this.setLayout(new BorderLayout());
 
 		dataPanel = this.createDataPanel();
-		this.add(dataPanel);
+		this.add(dataPanel, BorderLayout.NORTH);
 
-		settingPanel = this.createSettingPanel();
-		this.add(settingPanel);
+		// this.add(settingPanel);
 
 		submitPanel = this.createSubmitPanel();
-		this.add(submitPanel);
+		this.add(submitPanel, BorderLayout.EAST);
 
 		consolePanel = new JPanel();
 		consolePanel.setLayout(new BorderLayout());
@@ -80,7 +80,7 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		consoleArea.setDocument(new JTextFieldLimit(1024));
 
 		graphicPanel = new ActivityPanel();
-		this.add(graphicPanel);
+		this.add(graphicPanel, BorderLayout.WEST);
 
 		this.setMaximumSize(new Dimension(200, 300));
 	}
@@ -100,6 +100,15 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		d2Text.setText(String.format("%.3f", v2));
 		d3Text.setText(String.format("%.3f", v3));
 		bbText.setText(String.format("%.3f", bb));
+	}
+
+	public double[] getSensorInfo() {
+		double d1 = Double.parseDouble(d1Text.getText());
+		double d2 = Double.parseDouble(d2Text.getText());
+		double d3 = Double.parseDouble(d3Text.getText());
+		double bb = Double.parseDouble(bbText.getText());
+		double[] ret = { d1, d2, d3, bb };
+		return ret;
 	}
 
 	@Override
@@ -187,45 +196,47 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		d3Text.setHorizontalAlignment(JTextField.RIGHT);
 		bbText.setHorizontalAlignment(JTextField.RIGHT);
 		xSpinner.addChangeListener(new ChangeListener() {
-	        @Override
-	        public void stateChanged(ChangeEvent e) {
-	        	JSpinner s = (JSpinner) e.getSource();
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSpinner s = (JSpinner) e.getSource();
 				Car car = carMap.cars.get(0);
 				if (xPosField.getValue() instanceof Double)
 					car.setX((Double) s.getValue());
 				else
 					car.setX((Long) s.getValue());
 				carMap.repaint();
-	        }
-	    });		
+			}
+		});
 		ySpinner.addChangeListener(new ChangeListener() {
-	        @Override
-	        public void stateChanged(ChangeEvent e) {
-	        	JSpinner s = (JSpinner) e.getSource();
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSpinner s = (JSpinner) e.getSource();
 				Car car = carMap.cars.get(0);
 				if (xPosField.getValue() instanceof Double)
 					car.setY((Double) s.getValue());
 				else
 					car.setY((Long) s.getValue());
 				carMap.repaint();
-	        }
-	    });
-		sensorSpinner.setValue(50);		
+			}
+		});
+		sensorSpinner.setValue(50);
 		sensorSpinner.addChangeListener(new ChangeListener() {
-	        @Override
-	        public void stateChanged(ChangeEvent e) {
-	        	JSpinner s = (JSpinner) e.getSource();
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				JSpinner s = (JSpinner) e.getSource();
 				Car car = carMap.cars.get(0);
 				if (xPosField.getValue() instanceof Double)
 					car.sensorDeg = (Double) s.getValue();
 				else
 					car.sensorDeg = (Long) s.getValue();
 				carMap.repaint();
-	        }
-	    });
+			}
+		});
 
 		JPanel dataPanel = new JPanel();
-		dataPanel.setBorder(new TitledBorder("Information"));
+
+		settingPanel = this.createSettingPanel();
+
 		dataPanel.setLayout(new GridLayout(7, 2));
 		dataPanel.add(new JLabel("X:"));
 		dataPanel.add(xSpinner);
@@ -241,7 +252,14 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		dataPanel.add(bbText);
 		dataPanel.add(new JLabel("Sensor-deg:"));
 		dataPanel.add(sensorSpinner);
-		return dataPanel;
+
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.add(dataPanel, BorderLayout.WEST);
+		panel.add(settingPanel, BorderLayout.EAST);
+
+		panel.setBorder(new TitledBorder("Information"));
+		return panel;
 	}
 
 	protected JPanel createSettingPanel() {
@@ -283,14 +301,15 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		});
 
 		JPanel settingPanel = new JPanel();
-		settingPanel.setBorder(new TitledBorder("Setting"));
-		settingPanel.setLayout(new GridLayout(5, 2));
+		settingPanel.setLayout(new GridLayout(6, 2));
 		settingPanel.add(paintAxis);
 		settingPanel.add(paintGrid);
 		settingPanel.add(autoTrack);
 		settingPanel.add(errIgnore);
 		settingPanel.add(pathDraw);
 		settingPanel.add(pathRetain);
+		settingPanel.add(new JSeparator());
+		settingPanel.add(new JSeparator());
 		settingPanel.add(new JLabel("Map: "));
 		settingPanel.add(mapChoose);
 		settingPanel.add(new JLabel("Fuzzy System:"));
@@ -372,7 +391,6 @@ public class CarControlPanel extends JPanel implements ActionListener {
 	}
 
 	protected JComponent createButtons() {
-		JPanel panel = new JPanel(new GridLayout(2, 2));
 		// new JPanel(new FlowLayout(FlowLayout.TRAILING));
 
 		startTest = new JToggleButton("Run(Fuzzy)");
@@ -380,11 +398,15 @@ public class CarControlPanel extends JPanel implements ActionListener {
 		addCars = new JButton("Add");
 		GAbutton = new JButton("Gene Build");
 		GASimbutton = new JToggleButton("Run(GeneX)");
-		Font displayFont = new Font("Courier New", Font.PLAIN, 14);
+		PSObutton = new JButton("PSO Build");
+		PSOSimbutton = new JToggleButton("Run(PSO)");
+		Font displayFont = new Font("Comic Sans MS", Font.PLAIN, 16);
 		startTest.setFont(displayFont);
 		resetTest.setFont(displayFont);
 		GAbutton.setFont(displayFont);
 		GASimbutton.setFont(displayFont);
+		PSObutton.setFont(displayFont);
+		PSOSimbutton.setFont(displayFont);
 
 		resetTest.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -427,81 +449,58 @@ public class CarControlPanel extends JPanel implements ActionListener {
 			}
 		});
 
+		PSObutton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				double[][] in = graphicPanel.getDataInput();
+				double[] out = graphicPanel.getDataOutput();
+				PsoControl.getInstance().setGeneEnvironment(in, out);
+				PsoControl.getInstance().restartMachine(
+						PsoControl.getInstance().getBestSand());
+			}
+		});
+
 		startTest.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent ev) {
 				if (ev.getStateChange() == ItemEvent.SELECTED) {
-					if (testTask != null)
-						testTask.cancel();
-					testTask = new TimerTask() {
-						public void run() {
-							carMap.runCar();
-							Thread.yield();
-						}
-					};
-					testTimer.scheduleAtFixedRate(testTask, 100,
-							1000 / testRate.getValue());
+					carMap.driveCar(testRate.getValue());
 					startTest.setText("STOP");
 				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
-					if (testTask != null)
-						testTask.cancel();
-					testTask = null;
+					carMap.stopCar();
 					startTest.setText("RUN(Fuzzy)");
 				}
 			}
 		});
+
 		GASimbutton.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent ev) {
 				if (ev.getStateChange() == ItemEvent.SELECTED) {
-					testTask = new TimerTask() {
-						Gene engine;
-						Car car;
-
-						public TimerTask init(Gene engine, Car car) {
-							this.engine = engine;
-							this.car = car;
-							return this;
-						}
-
-						public void run() {
-							try {
-								double d1 = Double.parseDouble(d1Text.getText());
-								double d2 = Double.parseDouble(d2Text.getText());
-								double d3 = Double.parseDouble(d3Text.getText());
-								d1 = Math.min(d1, 30);
-								d2 = Math.min(d2, 30);
-								d3 = Math.min(d3, 30);
-								double deltaTheta = engine.rbf
-										.calcuateOutput(new double[] { d1, d2,
-												d3 });
-								deltaTheta = deltaTheta * 80 - 40;
-								deltaTheta = Math.max(Math.min(deltaTheta, 40),
-										-40);
-								deltaTheta = deltaTheta / 180.0 * Math.PI;
-								car.run(deltaTheta);
-								carMap.recordCarPath();
-								carMap.repaint();
-							} catch (Exception e) {
-								e.getStackTrace();
-							}
-							Thread.yield();
-						}
-					}.init(GeneControl.getInstance().getBestGene(),
-							carMap.cars.get(0));
-					testTimer.scheduleAtFixedRate(testTask, 100,
-							1000 / testRate.getValue());
+					GeneControl.getInstance().driveCar(testRate.getValue());
 					GASimbutton.setText("STOP");
 				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
-					if (testTask != null)
-						testTask.cancel();
-					testTask = null;
+					GeneControl.getInstance().stopCar();
 					GASimbutton.setText("RUN(GeneX)");
 				}
 			}
 		});
+		PSOSimbutton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent ev) {
+				if (ev.getStateChange() == ItemEvent.SELECTED) {
+					PsoControl.getInstance().driveCar(testRate.getValue());
+					PSOSimbutton.setText("STOP");
+				} else if (ev.getStateChange() == ItemEvent.DESELECTED) {
+					PsoControl.getInstance().stopCar();
+					PSOSimbutton.setText("RUN(PSO)");
+				}
+			}
+		});
+
+		JPanel panel = new JPanel(new GridLayout(3, 2));
 		panel.add(startTest);
 		panel.add(resetTest);
 		panel.add(GASimbutton);
 		panel.add(GAbutton);
+		panel.add(PSOSimbutton);
+		panel.add(PSObutton);
 		// panel.add(addCars);
 		// Match the SpringLayout's gap, subtracting 5 to make
 		// up for the default gap FlowLayout provides.

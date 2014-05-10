@@ -9,5 +9,8 @@
 	<classpathentry kind="lib" path="lib/G.demos.jar"/>
 	<classpathentry kind="lib" path="lib/G.jar"/>
 	<classpathentry kind="lib" path="lib/G.src.jar"/>
+	<classpathentry kind="lib" path="lib/jfreesvg-1.8.jar"/>
+	<classpathentry kind="lib" path="lib/orsoncharts-1.3-eval.jar"/>
+	<classpathentry kind="lib" path="lib/orsonpdf-1.6-eval.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Sat May 10 11:49:59 CST 2014
+onejar.license.required=false
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=true
+jarname=ConvexHull_fat.jar
+manifest.mergeall=true
+manifest.mainclass=frame.Main
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=

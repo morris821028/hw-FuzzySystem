@@ -92,7 +92,7 @@ public class ActivityPanel extends JPanel {
 		//
 		// Defines table's column width.
 		//
-		int[] columnsWidth = { 50, 50, 50, 70 };
+		// int[] columnsWidth = { 50, 50, 50, 70 };
 
 		//
 		// Creates an instance of JTable and fill it with data and
@@ -106,12 +106,12 @@ public class ActivityPanel extends JPanel {
 		// Configures table's column width.
 		//
 		int i = 0;
-		for (int width : columnsWidth) {
-			TableColumn column = table.getColumnModel().getColumn(i++);
-			column.setMinWidth(width);
-			column.setMaxWidth(width);
-			column.setPreferredWidth(width);
-		}
+//		for (int width : columnsWidth) {
+//			TableColumn column = table.getColumnModel().getColumn(i++);
+//			column.setMinWidth(width);
+//			column.setMaxWidth(width);
+//			column.setPreferredWidth(width);
+//		}
 
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setPreferredSize(new Dimension(220, 80));

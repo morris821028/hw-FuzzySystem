@@ -26,6 +26,7 @@ import javax.swing.SwingUtilities;
 import calcModel.geneAlgorithm.Gene;
 import calcModel.geneAlgorithm.GeneMachine;
 import calcModel.geneAlgorithm.GenePair;
+import CarSimulator.Car;
 import CarSimulator.CarControlPanel;
 
 public class GeneControl {
@@ -133,5 +134,52 @@ public class GeneControl {
 		if (dataBase.size() > 0)
 			return dataBase.get((int) (Math.random() * dataBase.size()));
 		return null;
+	}
+
+	TimerTask testTask;
+	java.util.Timer testTimer = new java.util.Timer("Test Timer");
+
+	public void driveCar(int fps) {
+		testTask = new TimerTask() {
+			Gene engine;
+			Car car;
+
+			public TimerTask init(Gene engine, Car car) {
+				this.engine = engine;
+				this.car = car;
+				return this;
+			}
+
+			public void run() {
+				try {
+					double d[] = CarControlPanel.getInstance().getSensorInfo();
+					double d1 = d[0];
+					double d2 = d[1];
+					double d3 = d[2];
+					d1 = Math.min(d1, 30);
+					d2 = Math.min(d2, 30);
+					d3 = Math.min(d3, 30);
+					double deltaTheta = engine.rbf.calcuateOutput(new double[] {
+							d1, d2, d3 });
+					deltaTheta = deltaTheta * 80 - 40;
+					deltaTheta = Math.max(Math.min(deltaTheta, 40), -40);
+					deltaTheta = deltaTheta / 180.0 * Math.PI;
+					car.run(deltaTheta);
+					CarControlPanel.getInstance().carMap.recordCarPath();
+					CarControlPanel.getInstance().carMap.repaint();
+				} catch (Exception e) {
+					e.getStackTrace();
+				}
+				Thread.yield();
+			}
+		}.init(GeneControl.getInstance().getBestGene(),
+				CarControlPanel.getInstance().carMap.cars.get(0));
+		testTimer.scheduleAtFixedRate(testTask, 100, 1000 / fps);
+	}
+
+	public void stopCar() {
+		if (testTask != null)
+			testTask.cancel();
+		testTask = null;
 	}
 }

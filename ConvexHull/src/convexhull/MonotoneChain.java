@@ -17,16 +17,18 @@ import frame.ConvexHullCanvas;
 public class MonotoneChain extends Algorithm {
 	//
 	Point2D.Double[] ch;
+	//
 	int processCH;
 	Point2D.Double processP1, processP2;
-
+	Algorithm rule = new RotatingCaliper(this);
+	
 	@Override
 	public void run(ConvexHullCanvas canvas) {
 		canvas.setAlgorithm(this);
 		Thread r = new Thread() {
 			public void sleep() {
 				try {
-					Thread.sleep(500);
+					Thread.sleep(100);
 				} catch (Exception e) {
 
 				}
@@ -62,8 +64,16 @@ public class MonotoneChain extends Algorithm {
 						
 						canvas.repaint();
 						sleep();
+						
 						m--;
-					}
+					}						
+					processP1 = null;
+					processP2 = D[i];
+					processCH = m - 1;
+					
+					canvas.repaint();
+					sleep();
+					
 					ch[m++] = D[i];
 				}
 				for (i = n - 1, t = m + 1; i >= 0; i--) {
@@ -75,15 +85,28 @@ public class MonotoneChain extends Algorithm {
 						sleep();
 						
 						m--;
-					}
+					}						
+					processP1 = null;
+					processP2 = D[i];
+					processCH = m - 1;
+					
+					canvas.repaint();
+					sleep();
+					
 					ch[m++] = D[i];
 				}
-				processP1 = null;
-				processP2 = null;
+
+				m--;
 				CH = new Point2D.Double[m];
 				for (i = 0; i < m; i++)
 					CH[i] = ch[i];
+								
+				processP1 = null;
+				processP2 = null;
+				processCH = m;
 				canvas.repaint();
+				//
+				rule.run(canvas);
 			}
 		};
 		r.start();
@@ -118,6 +141,7 @@ public class MonotoneChain extends Algorithm {
 				if (prevPt != null) {
 					g.drawLine(prevPt.x, prevPt.y, p.x, p.y);
 				}
+				rule.paint(g);
 			}
 			if(processP1 != null && processP2 != null) {
 				Point p1 = ConvexHullCanvas.getInstance().transOnSwing(processP1.x,
