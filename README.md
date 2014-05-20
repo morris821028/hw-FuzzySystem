@@ -10,7 +10,7 @@ Computational Intelligence 計算型智慧
 * 可以將車子兩側的感測器進行角度調整，並且可以根據感測器角度進行距離計算。
 * 並且在呈現 2D 平面時，附加顯示座標軸的比例。
 
-![完成圖](/img/hw-ci-0.PNG)
+![完成圖](/images/hw-ci-0.PNG)
 
 由於私心，有一些額外產物。
 
@@ -24,7 +24,7 @@ Computational Intelligence 計算型智慧
 
 車子運行公式
 
-![運行公式](/img/hw-ci-1.PNG)
+![運行公式](/images/hw-ci-1.PNG)
 
 其中 Φ(t) 是模型車與水平軸的角度，b 是模型車的長度，x 與 y 是模型車的座標位置， Θ(t) 是模型車方向盤所打的角度，我們對模擬的輸入輸出變數限制如下：
 
@@ -44,9 +44,9 @@ Computational Intelligence 計算型智慧
 ### 函數設計 ###
 d1 為前方感測器，d2 為右方感測器，d3 為左方感測器。
 1.	d1 歸屬函數為
-![d1 歸屬函數](/img/hw-ci-2.PNG)
+![d1 歸屬函數](/images/hw-ci-2.PNG)
 	d2, d3 歸屬函數為
-![d2, d3 歸屬函數](/img/hw-ci-3.PNG)	
+![d2, d3 歸屬函數](/images/hw-ci-3.PNG)	
 2.	函數式加權平均
 			If d3 large, θ = 55
 			If d2 large, θ = -55
@@ -60,19 +60,19 @@ d1 為前方感測器，d2 為右方感測器，d3 為左方感測器。
 3.	重心法、最大平均法、修正型最大平均法、中心平均法
 	為了方便計算連續函數，採用離散取點，間隔 0.1 抓取 [-60, 60] 之間的點座標。對於以下四種方法討論於簡單彎道的過程記錄：
 	`If d3 large`
-	![If d3 large](/img/hw-ci-4.png)
+	![If d3 large](/images/hw-ci-4.png)
 	If d2 large
-	![If d2 large](/img/hw-ci-5.png)
+	![If d2 large](/images/hw-ci-5.png)
 	If d2 medium
-	![If d2 medium](/img/hw-ci-6.png)
+	![If d2 medium](/images/hw-ci-6.png)
 	If d3 medium
-	![If d3 medium](/img/hw-ci-7.png)
+	![If d3 medium](/images/hw-ci-7.png)
 	If d1 large and d2 small
-	![If d1 large and d2 small](/img/hw-ci-8.png)
+	![If d1 large and d2 small](/images/hw-ci-8.png)
 	If d1 large and d3 small
-	![If d1 large and d3 small](/img/hw-ci-9.png)
+	![If d1 large and d3 small](/images/hw-ci-9.png)
 	If d1 small, θ = -60
-	![If d1 small](/img/hw-ci-10.png)
+	![If d1 small](/images/hw-ci-10.png)
 	* 重心法  
 	當中表現最為穩健，而且路徑平滑。
 	* 最大平均法   
@@ -85,15 +85,15 @@ d1 為前方感測器，d2 為右方感測器，d3 為左方感測器。
 -----
 
 ## Lv 2. GA ##
-![RBF](/img/hw-ci-RBF.PNG)
+![RBF](/images/hw-ci-RBF.PNG)
 
 「放射狀基底函數網路 RBF」，基本上，其網路架構如圖1所示，為兩層的網路；假設輸入維度是p ，以及隱藏層類神經元的數目是J ，那麼網路的輸入可以表示成：
-![](/img/hw-ci-RBF-f1.PNG)
+![](/images/hw-ci-RBF-f1.PNG)
 其中選用高斯型基底函數：
-![](/img/hw-ci-RBF-f2.PNG)
+![](/images/hw-ci-RBF-f2.PNG)
 其中 x = (x1,x2,…,xp) 、mj = (mj1,mj2,…,mjp) 、||  || 代表向量絕對值
 適應函數為：
-![](/img/hw-ci-RBF-f3.PNG)
+![](/images/hw-ci-RBF-f3.PNG)
 
 請用實數型基因演算法，找出wj , mj , σj，在不同的數字J下，最好的基因向量 (例如J為9、輸入x為3維向量，則表示基因向量是1+9+3x9+9=46維度的向量，請注意這裡不是指族群數；又例如J為7、輸入x為3維向量，則表示基因向量是1+7+3x7+7=36維度的向量)下，評估函數E(式1)為越小越好。其中基因向量維度公式為 1+J + p*J+J = (p+2)*J+1維向量( ,w1 , w2 ,.., wJ , m11, m12,.., m1p, m21, m22,.., m2p,.., mJ1, mJ2,…, mJp, σ1, σ2, ..., σJ)。
 
@@ -154,9 +154,9 @@ public double weightOfSocial = 0.5;
 public double nearRatio = 0.5;
 {% endcodeblock %}
 
-![PSO 1](/img/hw-ci-11.png)
+![PSO 1](/images/hw-ci-11.png)
 
-![PSO 2](/img/hw-ci-12.png)
+![PSO 2](/images/hw-ci-12.png)
 
 * 基本上 `maxXposition` 沒有用到，調整其他比例可以發現端倪。
 
@@ -164,7 +164,7 @@ public double nearRatio = 0.5;
 
 * 當所有粒子逼近最佳解時，仍會以原本的速度繼續飛行，而原本屬於最佳位置的點也會開始模仿其他粒子飛行，如此一來就會造成震盪。
 
-![PSO 3](/img/hw-ci-14.png)
+![PSO 3](/images/hw-ci-14.png)
 
 * 其震盪的高低決定於鄰近模仿的權重，如果鄰近的粒子效果不好，模仿的權重高的時候，會導致整個最佳解有嚴重的偏離。由 `PSO 3` 中可以驗證這個震盪問題。
 
