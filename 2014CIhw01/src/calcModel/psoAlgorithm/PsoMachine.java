@@ -77,11 +77,11 @@ public class PsoMachine {
 	}
 
 	public void setGenePool(int size, double pc, double rc, double pm, double rm) {
-		// genePool = new GenePool(this, size, pc, rc, pm, rm);
+		sandbox = new Sandbox(this, size, pc, rc, pm, rm);
 	}
 
 	public void init(Particle prevBest[]) {
-		// genePool.init(prevBest);
+		sandbox.init(prevBest);
 	}
 
 	JDialog dialog;
@@ -291,6 +291,7 @@ public class PsoMachine {
 		openDialog();
 		Thread r = new Thread() {
 			public void run() {
+				int D3 = 0;
 				for (int i = 0; i < numberOfoffspring; i++) {
 					processOfoffspring = i;
 					double best = sandbox.clustering(dataInput, dataOutput);
@@ -300,7 +301,7 @@ public class PsoMachine {
 						if (dataset != null)
 							dataset.addValue(best, "M1", "" + i);
 						recordBestSand();
-						if (i % 2 == 0)
+						if (i % 2 == 0 && D3++ < 50)
 							recordSandState();
 					}
 
