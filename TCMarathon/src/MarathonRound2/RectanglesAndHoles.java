@@ -10,7 +10,7 @@ import calcModel.geneAlgorithm.ui.GeneControl;
 
 public class RectanglesAndHoles {
 	public static RectanglesAndHolesVis vis = new RectanglesAndHolesVis();
-	public static int N = 20;
+	public static int N = 100;
 	public static int[] A = new int[N];
 	public static int[] B = new int[N];
 	public static int[] LX = new int[N];
@@ -39,19 +39,31 @@ public class RectanglesAndHoles {
 			Random generator = new Random();
 
 			for (int i = 0; i < N; i++) {
-				A[i] = generator.nextInt(50) + 1;
-				B[i] = generator.nextInt(300) + 50;
-				LX[i] = generator.nextInt(300) + 1;
-				LY[i] = generator.nextInt(300) + 1;
-				kind[i] = generator.nextInt(2);
+				A[i] = generator.nextInt(50) + 50;
+				B[i] = generator.nextInt(200) + 50;
+				if(Math.random() < 0.5) {
+					int t;
+					t = A[i];
+					A[i] = B[i];
+					B[i] = t;
+					kind[i] = 0;
+				}
+			}
+			
+			FloorPlanTool.getRandomPlace(A, B);
+			for (int i = 0; i < N; i++) {
+				LX[i] = FloorPlanTool.LX[i];
+				LY[i] = FloorPlanTool.LY[i];
+				kind[i] = 0;
 			}
 
+			long score = vis.runTest(N, A, B, LX, LY, kind);
+			
 			Gene.DNALength = 3 * N;
 			
 			GeneControl.getInstance().restartMachine(
 					GeneControl.getInstance().getBestGene());
 			
-			long score = vis.runTest(N, A, B, LX, LY, kind);
 
 			System.out.println("Score  = " + score);
 			

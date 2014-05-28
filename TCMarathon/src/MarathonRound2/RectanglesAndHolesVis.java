@@ -153,6 +153,27 @@ public class RectanglesAndHolesVis {
 
 			scale = (size - 2 * PADDING) / Math.max(maxX - minX, maxY - minY);
 		}
+
+		public void adjustView() {
+			final double INF = 10000000.0;
+			minX = INF;
+			maxX = -INF;
+			minY = INF;
+			maxY = -INF;
+
+			for (int elm : XS) {
+				minX = Math.min(minX, elm);
+				maxX = Math.max(maxX, elm);
+			}
+
+			for (int elm : YS) {
+				minY = Math.min(minY, elm);
+				maxY = Math.max(maxY, elm);
+			}
+
+			scale = (size - 2 * PADDING) / Math.max(maxX - minX, maxY - minY);
+
+		}
 	}
 
 	boolean overlap(int A, int B, int C, int D) {
@@ -445,23 +466,23 @@ public class RectanglesAndHolesVis {
 			RX[i] = LX[i] + (kind[i] == 0 ? A[i] : B[i]);
 			RY[i] = LY[i] + (kind[i] == 0 ? B[i] : A[i]);
 		}
-/*
-		for (int i = 0; i < N; i++) {
-			for (int j = i + 1; j < N; j++) {
-				if (overlap(LX[i], RX[i], LX[j], RX[j])
-						&& overlap(LY[i], RY[i], LY[j], RY[j])) {
-					System.err.println("ERROR: rectangles " + i
-							+ " (0-based) and " + j
-							+ " (0-based) in your solution overlap. Rectangle "
-							+ i + " is (" + LX[i] + ", " + LY[i] + ") - ("
-							+ RX[i] + ", " + RY[i] + "). Rectangle " + j
-							+ " is (" + LX[j] + ", " + LY[j] + ") - (" + RX[j]
-							+ ", " + RY[j] + ").");
-					return -1;
-				}
-			}
-		}
-*/
+
+//		for (int i = 0; i < N; i++) {
+//			for (int j = i + 1; j < N; j++) {
+//				if (overlap(LX[i], RX[i], LX[j], RX[j])
+//						&& overlap(LY[i], RY[i], LY[j], RY[j])) {
+//					System.err.println("ERROR: rectangles " + i
+//							+ " (0-based) and " + j
+//							+ " (0-based) in your solution overlap. Rectangle "
+//							+ i + " is (" + LX[i] + ", " + LY[i] + ") - ("
+//							+ RX[i] + ", " + RY[i] + "). Rectangle " + j
+//							+ " is (" + LX[j] + ", " + LY[j] + ") - (" + RX[j]
+//							+ ", " + RY[j] + ").");
+//					return -1;
+//				}
+//			}
+//		}
+
 		XS = enumerateCoordinates(LX, RX);
 		YS = enumerateCoordinates(LY, RY);
 
@@ -538,8 +559,8 @@ public class RectanglesAndHolesVis {
 
 		compCnt--;
 
-		System.out.println("Holes count (Cnt) = " + compCnt);
-		System.out.println("Holes area (Area) = " + totArea);
+//		System.out.println("Holes count (Cnt) = " + compCnt);
+//		System.out.println("Holes area (Area) = " + totArea);
 
 		if (vis) {
 			drawer = new Drawer();
@@ -603,23 +624,23 @@ public class RectanglesAndHolesVis {
 			RX[i] = LX[i] + (kind[i] == 0 ? A[i] : B[i]);
 			RY[i] = LY[i] + (kind[i] == 0 ? B[i] : A[i]);
 		}
-/*
+
 		for (int i = 0; i < N; i++) {
 			for (int j = i + 1; j < N; j++) {
 				if (overlap(LX[i], RX[i], LX[j], RX[j])
 						&& overlap(LY[i], RY[i], LY[j], RY[j])) {
-					System.err.println("ERROR: rectangles " + i
-							+ " (0-based) and " + j
-							+ " (0-based) in your solution overlap. Rectangle "
-							+ i + " is (" + LX[i] + ", " + LY[i] + ") - ("
-							+ RX[i] + ", " + RY[i] + "). Rectangle " + j
-							+ " is (" + LX[j] + ", " + LY[j] + ") - (" + RX[j]
-							+ ", " + RY[j] + ").");
+					// System.err.println("ERROR: rectangles " + i
+					// + " (0-based) and " + j
+					// + " (0-based) in your solution overlap. Rectangle "
+					// + i + " is (" + LX[i] + ", " + LY[i] + ") - ("
+					// + RX[i] + ", " + RY[i] + "). Rectangle " + j
+					// + " is (" + LX[j] + ", " + LY[j] + ") - (" + RX[j]
+					// + ", " + RY[j] + ").");
 					return -1;
 				}
 			}
 		}
-*/
+
 		XS = enumerateCoordinates(LX, RX);
 		YS = enumerateCoordinates(LY, RY);
 
@@ -696,9 +717,8 @@ public class RectanglesAndHolesVis {
 
 		compCnt--;
 
-		System.out.println("Holes count (Cnt) = " + compCnt);
-		System.out.println("Holes area (Area) = " + totArea);
 		if (vis && drawer != null) {
+			drawer.adjustView();
 			drawer.repaint();
 		}
 		return totArea * compCnt * compCnt;
