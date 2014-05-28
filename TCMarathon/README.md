@@ -8,7 +8,7 @@ TODO
 
 最後使用 Gene Algorithm 嘗試看看，但是效果並不好。
 
-![](demo.png)
+![](demo.PNG)
 
 About
 =====
