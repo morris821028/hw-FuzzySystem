@@ -16,13 +16,13 @@ public class GenePool {
 	public GenePool(GeneMachine gm, int poolSize,
 			double probabilityOfCrossover, double ratioOfCrossover,
 			double probabilityOfMutation, double ratioOfMutation) {
-		
+
 		this.poolSize = poolSize;
 		this.probabilityOfCrossover = probabilityOfCrossover;
 		this.ratioOfCrossover = ratioOfCrossover;
 		this.probabilityOfMutation = probabilityOfMutation;
 		this.ratioOfMutation = ratioOfMutation;
-		
+
 		gene = new Gene[poolSize];
 		newGene = new Gene[poolSize];
 		for (int i = 0; i < gene.length; i++)
@@ -53,8 +53,10 @@ public class GenePool {
 		double ratio = (Math.random() - 0.5) * 2 * this.ratioOfCrossover;
 		Gene nx = new Gene(), ny = new Gene();
 		for (int i = 0; i < xg.getDNA().length; i++) {
-			nx.getDNA()[i] = xg.getDNA()[i] + ratio * (xg.getDNA()[i] - yg.getDNA()[i]);
-			ny.getDNA()[i] = yg.getDNA()[i] - ratio * (xg.getDNA()[i] - yg.getDNA()[i]);
+			nx.getDNA()[i] = xg.getDNA()[i] + ratio
+					* (xg.getDNA()[i] - yg.getDNA()[i]);
+			ny.getDNA()[i] = yg.getDNA()[i] - ratio
+					* (xg.getDNA()[i] - yg.getDNA()[i]);
 		}
 		newGene[x] = nx;
 		newGene[y] = ny;
@@ -63,8 +65,9 @@ public class GenePool {
 	public void geneMutation(Gene g) {
 		double ratio = (Math.random() - 0.5) * 2 * this.ratioOfMutation;
 		for (int i = 0; i < g.getDNA().length; i++) {
-			if (Math.random() < ratio)
-				g.getDNA()[i] = g.getDNA()[i] + ratio * Math.random() * g.getDNA()[i];
+			if (Math.random() < probabilityOfMutation)
+				g.getDNA()[i] = g.getDNA()[i] + ratio * Math.random()
+						* g.getDNA()[i];
 		}
 	}
 
