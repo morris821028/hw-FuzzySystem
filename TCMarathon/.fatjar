@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Wed Jun 04 06:59:45 CST 2014
+onejar.license.required=false
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=true
+jarname=TCMarathon_fat.jar
+manifest.mergeall=true
+manifest.mainclass=MarathonRound2.RectanglesAndHoles
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=

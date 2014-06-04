@@ -1,6 +1,5 @@
 package calcModel.geneAlgorithm;
 
-import MarathonRound2.FloorPlanTool;
 import MarathonRound2.RectanglesAndHoles;
 import MarathonRound2.RectanglesAndHolesVis;
 
@@ -34,21 +33,18 @@ public class Gene {
 
 	public void on() {
 		for (int i = 0; i < DNALength; i += 3) {
-			DNA[i] = Math.max(Math.min(DNA[i], 1), 0);
+			DNA[i] = Math.min(DNA[i], 1);
 		}
 		for (int i = 0; i < DNALength; i++) {
-			DNA[i] = Math.min(DNA[i], 1000);
+			DNA[i] = Math.min(DNA[i], 500);
 		}
 	}
 
 	public void randomBuild() {
-		FloorPlanTool
-				.getRandomPlace(RectanglesAndHoles.A, RectanglesAndHoles.B);
-		for (int i = 0; i < RectanglesAndHoles.A.length; i++) {
-			DNA[3 * i] = 0;
-			DNA[3 * i + 1] = FloorPlanTool.LX[i];
-			DNA[3 * i + 2] = FloorPlanTool.LY[i];
-		}
+		for (int i = 0; i < DNALength; i++)
+			DNA[i] = (int) Math.round(Math.random() * 500);
+		for (int i = 0; i < DNALength; i += 3)
+			DNA[i] = (int) Math.round(Math.random());
 		on();
 	}
 
@@ -61,14 +57,12 @@ public class Gene {
 	public static RectanglesAndHolesVis vis = new RectanglesAndHolesVis();
 
 	public void showVis() {
-		on();
 		for (int i = 0, j = 0; i < DNA.length; i += 3, j++) {
 			RectanglesAndHoles.kind[j] = DNA[i];
 			RectanglesAndHoles.LX[j] = DNA[i + 1];
 			RectanglesAndHoles.LY[j] = DNA[i + 2];
-			if(DNA[i] < 0 || DNA[i] > 1)
-				System.err.println("SSSSSSSSSSSSSSSS");
 		}
+		vis.vis = true;
 		RectanglesAndHoles.vis.runTest2(RectanglesAndHoles.N,
 				RectanglesAndHoles.A, RectanglesAndHoles.B,
 				RectanglesAndHoles.LX, RectanglesAndHoles.LY,

@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class FloorPlanTool {
-	public static int[] LX;
-	public static int[] LY;
+	static int[] LX;
+	static int[] LY;
 	static int[] used;
 	static int[] A;
 	static int[] B;
@@ -21,7 +21,7 @@ public class FloorPlanTool {
 	public static void placeUpSingle(int place, int base) {
 		int lx, ly;
 		lx = LX[base] + A[base];
-		ly = LY[base] + rand.nextInt(B[base]) - B[base]/2;
+		ly = LY[base];
 
 		Rectangle rr = new Rectangle(lx, ly, A[place], B[place]);
 		boolean update = false;
@@ -30,8 +30,9 @@ public class FloorPlanTool {
 			for (int i = 0; i < used.length; i++) {
 				if (used[i] == 1) {
 					if (rect[i].intersects(rr)) {
-						rr.x = Math.max(rect[i].x + rect[i].width, rr.x);
-//						rr.y = Math.max(rect[i].y + rect[i].height, rr.y);
+						Rectangle in = rect[i].intersection(rr);
+						rr.x = Math.max(in.x + in.width, rr.x);
+						rr.y = Math.max(in.y + in.height, rr.y);
 						update = true;
 					}
 				}
@@ -45,7 +46,7 @@ public class FloorPlanTool {
 
 	public static void placeRightSingle(int place, int base) {
 		int lx, ly;
-		lx = LX[base] + rand.nextInt(A[base]) - A[base]/2;
+		lx = LX[base];
 		ly = LY[base] + B[base];
 		
 		Rectangle rr = new Rectangle(lx, ly, A[place], B[place]);
@@ -55,8 +56,9 @@ public class FloorPlanTool {
 			for (int i = 0; i < used.length; i++) {
 				if (used[i] == 1) {
 					if (rect[i].intersects(rr)) {
-//						rr.x = Math.max(rect[i].x + rect[i].width, rr.x);
-						rr.y = Math.max(rect[i].y + rect[i].height, rr.y);
+						Rectangle in = rect[i].intersection(rr);
+						rr.x = Math.max(in.x + in.width, rr.x);
+						rr.y = Math.max(in.y + in.height, rr.y);
 						update = true;
 					}
 				}
@@ -75,7 +77,7 @@ public class FloorPlanTool {
 		int up = rand.nextInt(T.length);
 		int right = rand.nextInt(T.length);
 		int type = 0; // 0 up, 1 right, 2 up and right
-		if (up == right || Math.random() < 0.1) {
+		if (up == right) {
 			type = rand.nextInt(2);
 		} else {
 			type = rand.nextInt(3);
@@ -87,7 +89,7 @@ public class FloorPlanTool {
 					continue;
 				nextT[j++] = T[i];
 			}
-			placeUpSingle(T[up], baseNode);
+			placeUpSingle(baseNode, T[up]);
 			dfs(T[up], nextT);
 		} else if (type == 1) {
 			int[] nextT = new int[T.length - 1];
@@ -96,7 +98,7 @@ public class FloorPlanTool {
 					continue;
 				nextT[j++] = T[i];
 			}
-			placeUpSingle(T[right], baseNode);
+			placeUpSingle(baseNode, T[right]);
 			dfs(T[right], nextT);
 		} else if (type == 2) {
 			int[] nextU;
@@ -107,7 +109,7 @@ public class FloorPlanTool {
 			for (int i = 0; i < T.length; i++) {
 				if (i == up || i == right)
 					continue;
-				if (Math.random() < 0.5)
+				if (Math.random() < 0.8)
 					UP.add(T[i]);
 				else
 					RIGHT.add(T[i]);
@@ -122,9 +124,9 @@ public class FloorPlanTool {
 			for (int i = 0; i < tmp.length; i++)
 				nextR[i] = tmp[i];
 			
-			placeUpSingle(T[up], baseNode);
+			placeUpSingle(baseNode, T[up]);
 			
-			placeRightSingle(T[right], baseNode);
+			placeUpSingle(baseNode, T[right]);
 			
 			dfs(T[up], nextU);
 			dfs(T[right], nextR);

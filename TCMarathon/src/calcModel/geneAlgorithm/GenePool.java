@@ -63,8 +63,8 @@ public class GenePool {
 	public void geneMutation(Gene g) {
 		double ratio = (Math.random() - 0.5) * 2 * this.ratioOfMutation;
 		for (int i = 0; i < g.getDNA().length; i++) {
-			if (Math.random() < this.probabilityOfMutation)
-				g.getDNA()[i] = (int)Math.round(g.getDNA()[i] + ratio * Math.random() * 100);
+			if (Math.random() < ratio)
+				g.getDNA()[i] = (int)Math.round(g.getDNA()[i] + ratio * Math.random() * g.getDNA()[i]);
 		}
 	}
 
@@ -119,7 +119,7 @@ public class GenePool {
 
 		for (int i = reserve; i < A.length; i++) {
 			double p = Math.random();
-			if (p < 0.8) {
+			if (p < this.probabilityOfMutation) {
 				geneMutation(gene[i]);
 			}
 		}

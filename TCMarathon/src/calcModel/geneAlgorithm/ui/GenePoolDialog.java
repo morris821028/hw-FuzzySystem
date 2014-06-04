@@ -67,19 +67,19 @@ public class GenePoolDialog extends JDialog implements ActionListener,
 		spinnerPcrossover = new JSpinner(spinnerModel);
 		spinnerModel = new SpinnerNumberModel(0.3f, 0, 1, 0.01);
 		spinnerRcrossover = new JSpinner(spinnerModel);
-		spinnerModel = new SpinnerNumberModel(0.5f, 0, 1, 0.01);
+		spinnerModel = new SpinnerNumberModel(0.8f, 0, 1, 0.01);
 		spinnerPmutation = new JSpinner(spinnerModel);
-		spinnerModel = new SpinnerNumberModel(0.5f, 0, 10, 0.01);
+		spinnerModel = new SpinnerNumberModel(0.8f, 0, 10, 0.01);
 		spinnerRmutation = new JSpinner(spinnerModel);
 		// Create an array of the text and components to be displayed.
-		String msgString1 = "ï¿½ï¿½ï¿½]ï¿½wï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½Tï¿½ï¿½ (Setting Gene Pool)\n";
-		String msgString2 = "ï¿½ï¿½ï¿½sï¿½jï¿½p (Pool size)";
-		String msgString3 = "ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½v (probability Of Crossover)";
-		String msgString4 = "ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½v (ratio Of Crossover)";
-		String msgString5 = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½v (probability Of Mutation)";
-		String msgString6 = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½v (ratio Of Mutation)";
-		String msgString7 = "ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½ï¿½ (number Of offspring)";
-		String msgStringComment = "(ï¿½ï¿½ï¿½U Enter ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Jï¿½ï¿½ï¿½ï¿½ genePool.txt ï¿½ï¿½ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½A\nï¿½pï¿½Gï¿½ï¿½ï¿½sï¿½bï¿½hï¿½bï¿½ï¿½ï¿½|ï¿½Wï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Bï¿½Nï¿½ï¿½ï¿½nï¿½ï¿½ï¿½ï¿½ï¿½Gï¿½xï¿½s)";
+		String msgString1 = "½Ð³]©w°ò¦]¦À°T®§ (Setting Gene Pool)\n";
+		String msgString2 = "±Ú¸s¤j¤p (Pool size)";
+		String msgString3 = "¥æ°t¾÷²v (probability Of Crossover)";
+		String msgString4 = "¥æ°t¤ñ²v (ratio Of Crossover)";
+		String msgString5 = "¬ðÅÜ¾÷²v (probability Of Mutation)";
+		String msgString6 = "¬ðÅÜ¤ñ²v (ratio Of Mutation)";
+		String msgString7 = "­¡¥N¦¸¼Æ (number Of offspring)";
+		String msgStringComment = "(«ö¤U Enter «á¡A¸ü¤J­ì¥ý genePool.txt «Ø¥ß¦nªº¸ê°T¡A\n¦pªG¤£¦s¦b«h¦b«Ý·|¼W¥[ÀÉ®×¡A¨Ã¥B±N³Ì¦nªºµ²ªGÀx¦s)";
 
 		Object[] array = { msgString1, msgString2, spinnerPoolSize, msgString3,
 				spinnerPcrossover, msgString4, spinnerRcrossover, msgString5,
